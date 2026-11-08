@@ -9,13 +9,16 @@
     <link rel="manifest" href="manifest.webmanifest" />
     <link rel="icon" type="image/png" href="icons/icon-192.png" />
     <link rel="apple-touch-icon" href="icons/icon-192.png" />
-    <title>Pawan World — Ink & Wash Roads</title>
+    <title>Pawan Sah · Full-Stack Developer — Pawan World</title>
+    <meta name="description" content="Pawan Sah, full-stack developer. A Pokémon-style portfolio: projects (ScanlyFix, Bennet AI, ThirdEye), experience, skills, contact, and a playable 3D world." />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Caveat+Brush&family=Kalam:wght@400;700&family=DM+Sans:wght@500;700&family=Noto+Sans+JP:wght@500&display=swap"
       rel="stylesheet"
     />
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="home/home.css" />
     <style>
       :root {
         --paper: #f4efe2;
@@ -967,6 +970,8 @@
         }
       }
     </script>
+    <!-- portfolio home screen (menu, sections, 3D duo); PLAY hands over to the game's #go -->
+    <script type="module" src="home/home.js"></script>
     <script type="module">
       import * as THREE from "three";
       import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";

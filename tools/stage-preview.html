@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Stage Preview</title>
+    <style>
+      html, body { margin: 0; height: 100%; background: linear-gradient(#bcd9e6, #e9e2cf); }
+      #h { position: fixed; inset: 0; }
+    </style>
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+          "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <div id="h"></div>
+    <script type="module">
+      // dev aid for the home-screen duo (Pawan + Greninja)
+      import { createStage } from "../home/stage.js";
+      window.stage = await createStage(document.getElementById("h"), { onProgress: (p) => (document.title = "Stage " + Math.round(p * 100) + "%") });
+    </script>
+  </body>
+</html>

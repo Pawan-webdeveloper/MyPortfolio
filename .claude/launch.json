@@ -1,0 +1,16 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "trainers-atlas",
+      "url": "http://localhost:5174",
+      "port": 5174
+    },
+    {
+      "name": "paperworld",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "8437", "--directory", "."],
+      "port": 8437
+    }
+  ]
+}

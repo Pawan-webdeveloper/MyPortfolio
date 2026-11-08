@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Trainer Preview</title>
+    <style>
+      html, body { margin: 0; height: 100%; background: linear-gradient(#bcd9e6, #e9e2cf); }
+      canvas { display: block; width: 100vw; height: 100vh; }
+    </style>
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+          "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <script type="module">
+      // dev aid: the home-screen trainer on his own. ?view=full|face|hands&yaw=0.3&k=1
+      import * as THREE from "three";
+      import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+      import { DRACOLoader } from "three/addons/loaders/DRACOLoader.js";
+      import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
+      import { buildTrainer } from "../home/trainer.js";
+      const q = new URLSearchParams(location.search);
+      const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+      renderer.setSize(innerWidth, innerHeight);
+      renderer.outputColorSpace = THREE.SRGBColorSpace;
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.08;
+      renderer.shadowMap.enabled = true;
+      document.body.appendChild(renderer.domElement);
+      const scene = new THREE.Scene();
+      scene.environment = new THREE.PMREMGenerator(renderer).fromScene(new RoomEnvironment(), 0.04).texture;
+      scene.environmentIntensity = 0.55;
+      const key = new THREE.DirectionalLight("#fff0dc", 2.7);
+      key.position.set(1.4, 3.4, 2.8);
+      key.castShadow = true;
+      scene.add(key, new THREE.HemisphereLight("#d6ecff", "#8d7a62", 0.75));
+      const rim = new THREE.DirectionalLight("#8fe3ff", 3.0);
+      rim.position.set(-2.4, 2.4, -2.4);
+      scene.add(rim);
+      const camera = new THREE.PerspectiveCamera(22, innerWidth / innerHeight, 0.05, 40);
+      const loader = new GLTFLoader().setDRACOLoader(new DRACOLoader().setDecoderPath("../vendor/draco/"));
+      const T = await buildTrainer({ loader });
+      scene.add(T.rig);
+      T.rig.rotation.y = q.has("yaw") ? +q.get("yaw") : 0.25;
+      const startView = q.get("view") || "full";
+      window.T = T;
+      window.view = (v, yaw) => {
+        if (yaw !== undefined) T.rig.rotation.y = yaw;
+        if (v === "face") { camera.position.set(0.15, 1.68, 1.3); camera.lookAt(0, 1.62, 0); }
+        else if (v === "torso") { camera.position.set(0.2, 1.3, 3.2); camera.lookAt(0, 1.25, 0); }
+        else { camera.position.set(0.2, 1.05, 6.4); camera.lookAt(0, 0.95, 0); }
+        camera.updateProjectionMatrix();
+      };
+      window.render = (t = 2, k = +(q.get("k") ?? 1)) => { T.update(0.016, t, new THREE.Vector2(), { k }); renderer.render(scene, camera); };
+      window.draw = () => renderer.render(scene, camera);
+      window.view(startView);
+      window.render();
+      window.ready = true;
+    </script>
+  </body>
+</html>
