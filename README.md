@@ -10,6 +10,32 @@ Explore an endless ink-and-watercolour world with three playable Pokémon:
 
 The existing world, driving speed, vehicle interactions, camera, weather, radio, and screen layout are preserved.
 
+## Wild Pokémon
+
+The world's animals are gone; every region now has its own wild Pokémon, picked by type for the place:
+
+- **32 regions, 164 species from generations 1–7, no repeats.** Towns get city Pokémon and pets (Meowth, Pikachu, Litwick…), fields get farm and grassland ones (Mareep, Miltank, Ponyta…), forests get Bug/Grass/Dark types, meadows and cherry groves get Fairy and Grass types, mountains get Rock/Ground/Ice/Steel, and lakes get Water types only. The full list is in `wild/roster.js`.
+- **One legendary boss per region, drawn from every generation 1–7:** Mewtwo in Café Lane, Mew in Teacup Quarter, Lugia off Salt Shore, Kyogre in Teal Lake, Palkia in Mirror Water, Rayquaza on Crane Summit, Giratina in Origami Pass, Groudon on Folded Ridge, Kyurem on Paper Peaks, Ho-Oh over Rainbow Fields, Darkrai in Marmalade Mews, Yveltal in Inkwood Forest, Xerneas on Ribbon Row, Solgaleo, Zekrom, Tapu Lele, Tapu Bulu and more. Each boss waits at a fixed lair (chosen a short drive from where you first enter, then remembered), marked by a gold ring and a star. A tracker chip at the top and a Poké Ball on the minimap point the way. Battles are planned for later.
+- **Herds and flocks:** where the world used to paint cows, sheep, deer and ducks there are now herds of the region's Pokémon (Miltank, Ponyta, Deerling, Psyduck families on the lakes). The paper-bird flocks became flocks of the region's bird Pokémon (Pidgey, Wingull, Starly…).
+- **Solid and reactive:** the car and Greninja bump into them (small ones get knocked over, bosses don't budge), and Charizard can't fly through them. Timid ones run, curious ones come over to look, and on foot **E** greets the nearest one. First sightings fill a Pokédex (top of the screen, saved in `localStorage` as `pw-dex`).
+- **Light on performance:** `tools/build-wild.mjs` bakes each rigged model into a static mesh, simplifies it, shrinks textures to 256 px WebP (512 px for bosses) and Draco-compresses it (4.7 MB for all 164, about 28 KB each). In game each species is one instanced mesh per material, loaded only when its region is near and unloaded when unused. They really walk: the vertex shader swings bipeds' legs left/right and quadrupeds' legs in diagonal pairs about the hip (measured from each model; which species is which is listed in `wild/roster.js` → `LEGS`), lifting each foot on the forward swing. Step rate follows speed, so feet don't slide, and running means longer strides, a forward lean and more bounce. Birds and bugs beat their wings (`WINGS`), hoppers hop in time with their speed, and blob-shaped Pokémon shuffle. Feet sit exactly on the ground: models are grounded on their true lowest point and placed on the highest terrain under their footprint.
+- Rebuild models with `node tools/build-wild.mjs` (it checks every species' types against PokéAPI first). Check them by eye with `tools/wild-preview.html` (`?anim=walk|run&view=side` plays the walk cycle).
+
+## World map
+
+Press **M** (or click / tap the minimap) for a full-screen map. It shows where you are, the roads and regions, and **every region boss** in view (lairs are found on the fly; the list on the side is sorted by distance). Drag to move, scroll / pinch / +− to zoom, ◎ to re-centre.
+
+- **Tap anywhere** to drop a pin, or **tap a boss → Navigate**. The shortest route is drawn on the map and the minimap, a chip at the top of the screen points the way with the distance left, and a light beacon marks the spot.
+- Routes prefer roads, avoid town blocks and slow forests, and never send the jeep into deep water. On foot (Greninja) water is fine, and Charizard flies straight. Wander off or switch Pokémon and the route is re-planned.
+- The code is in `nav/worldmap.js`; `index.html` only passes it the world helpers and calls `worldMap.update()` each frame.
+
+## Deep water
+
+Lakes outside towns are now deep (town ponds stay shallow, and the shorelines are where they always were). The sea is painted by depth: dark blue in the middle, light turquoise in the shallows.
+
+- **Gengar's jeep** (or any borrowed car) and **Charizard** sink if they go into deep water, then come back up at the last dry spot you passed, facing away from the water.
+- **Greninja** runs across deep water on the surface, splashing as it goes.
+
 ## Portfolio home screen
 
 The page opens on Pawan's portfolio: a Pokémon-style start menu over the live (blurred) world, with Pawan in a trainer cap standing beside Greninja in a trainer-and-partner battle pose (Greninja carries its water shuriken).
@@ -55,13 +81,13 @@ Controls: arrows or WASD to move, Enter or Space to select, Esc, Backspace or B 
 | A / D | Steer |
 | Space | Hop / jump |
 | Shift | Boost / run |
-| E | Get in / out of a vehicle |
+| E | Get in / out of a vehicle · on foot near a Pokémon: greet it |
 | C | Cycle camera |
 | Scroll, + / − | Zoom |
 | [ / ] | Adjust field of view |
 | K | Toggle rain |
 | R / N / B | Radio on/off / next song / band |
-| M | Minimap |
+| M | World map (or click / tap the minimap) · M, Esc or Back closes it |
 | P | Photo |
 | H | Hide UI |
 | Drag | Look around |
@@ -93,7 +119,8 @@ node --test
 Pawan's work is the Pokémon customization, not authorship of all underlying code or assets.
 
 - Pokémon names, characters, and model IP belong to Nintendo / Creatures Inc. / GAME FREAK inc. This is an unofficial, non-commercial fan project, not affiliated with or endorsed by those companies.
-- Model source: `Pokemon-3D-api/assets`, paths `models/opt/regular/6.glb`, `94.glb`, and `658.glb`. Greninja's local asset retains selected animation clips from the original model. A repository's code license does not license the Pokémon model IP.
+- Model source: `Pokemon-3D-api/assets`, paths `models/opt/regular/6.glb`, `94.glb`, and `658.glb`, plus the 164 wild Pokémon in `models/pokemon/wild/` (same repository, `models/opt/regular/<dex number>.glb`, re-processed by `tools/build-wild.mjs`).
+- Species names, types and heights come from [PokéAPI](https://pokeapi.co/). Greninja's local asset retains selected animation clips from the original model. A repository's code license does not license the Pokémon model IP.
 - three.js is loaded from a CDN and is MIT-licensed.
 - The bundled Draco decoder is provided by Google under Apache-2.0. Its license is included in `vendor/draco/LICENSE`.
 

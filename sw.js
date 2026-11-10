@@ -1,5 +1,5 @@
 // Pawan World — offline cache. HTML and the home-screen code are network-first (so updates arrive),
-// everything else (models, decoder, icons, CDN) cache-first.
+// wild/ (Pokémon code + dex) and nav/ (map) too; everything else (models, decoder, icons, CDN) cache-first.
 const CACHE = "pawanworld-v2";
 const CORE = ["./", "index.html", "manifest.webmanifest", "icons/icon-192.png", "icons/icon-512.png",
   "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js"];
@@ -14,7 +14,7 @@ self.addEventListener("fetch", (e) => {
   if (req.method !== "GET") return;
   const isPage = req.mode === "navigate" || req.destination === "document";
   const url = new URL(req.url);
-  const isHomeCode = url.origin === self.location.origin && /\/(home\/[^/]+|hero\.js)$/.test(url.pathname);
+  const isHomeCode = url.origin === self.location.origin && /\/(home\/[^/]+|hero\.js|wild\/[^/]+|nav\/[^/]+)$/.test(url.pathname);
   if (isPage || isHomeCode) {
     e.respondWith(fetch(req).then((r) => { const copy = r.clone(); caches.open(CACHE).then((c) => c.put(req, copy)); return r; })
       .catch(() => caches.match(req).then((r) => r || (isPage ? caches.match("index.html") : Response.error()))));

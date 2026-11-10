@@ -1,0 +1,120 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Wild Pokémon preview</title>
+    <style>
+      body { margin: 0; background: #eef3f5; font: 12px system-ui; }
+      #bar { position: fixed; top: 0; left: 0; right: 0; padding: 6px 10px; background: #fbf8efdd; z-index: 2 }
+      canvas { display: block }
+      .lab { position: absolute; transform: translate(-50%, 0); color: #1f1d2b; font-weight: 600; white-space: nowrap; pointer-events: none; text-shadow: 0 0 3px #fff }
+    </style>
+    <script type="importmap">
+      { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+                     "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/" } }
+    </script>
+  </head>
+  <body>
+    <div id="bar">Wild Pokémon preview · ?page=0..N · ?ids=54,130 · blue arrow = game forward (−Z): the camera stands in FRONT, so a correct model looks at you · red line = ground</div>
+    <script type="module">
+      // Dev aid: every wild model normalised exactly like the game does (wild/wild.js → prepareSpecies),
+      // seen from the front-right so facing and grounding can be checked at a glance.
+      import * as THREE from "three";
+      import { prepareSpecies } from "../wild/wild.js";
+      const q = new URLSearchParams(location.search);
+      const dex = await (await fetch("../wild/dex.json")).json();
+      let ids = Object.keys(dex).map(Number);
+      if (q.get("ids")) ids = q.get("ids").split(",").map(Number);
+      const per = +(q.get("per") || 12), page = +(q.get("page") || 0);
+      ids = ids.slice(page * per, page * per + per);
+      const renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setSize(innerWidth, innerHeight);
+      document.body.appendChild(renderer.domElement);
+      const scene = new THREE.Scene();
+      scene.background = new THREE.Color("#eef3f5");
+      scene.add(new THREE.HemisphereLight(0xffffff, 0x8899aa, 2.2));
+      const sun = new THREE.DirectionalLight(0xffffff, 1.6);
+      sun.position.set(-5, 10, 8);
+      scene.add(sun);
+      const cols = +(q.get("cols") || 4), gap = 6;
+      const camera = new THREE.PerspectiveCamera(30, innerWidth / innerHeight, 0.1, 500);
+      const rows = Math.ceil(ids.length / cols);
+      const cx = ((cols - 1) * gap) / 2, cz = ((rows - 1) * gap) / 2;
+      camera.position.set(cx + 5, 15, -24);
+      camera.lookAt(cx, 0.6, cz - 1);
+      if (q.get("view") === "side") {
+        // from the left, at eye level: best for judging legs and wing beats
+        camera.position.set(cx - 9 - cols * 3, 2.2, cz);
+        camera.lookAt(cx, 1.4, cz);
+      }
+      const labels = [], animated = [];
+      const anim = q.get("anim"); // walk | run | (unset = still)
+      const mk = (txt) => { const d = document.createElement("div"); d.className = "lab"; d.textContent = txt; document.body.appendChild(d); return d; };
+      await Promise.all(ids.map(async (id, i) => {
+        const x = (i % cols) * gap, z = Math.floor(i / cols) * gap;
+        // same material conversion idea as the game (colour + texture only, no PBR metalness)
+        if (q.get("raw")) {
+          // the untouched source model (real skinning), to compare with the baked one
+          const { GLTFLoader } = await import("three/addons/loaders/GLTFLoader.js");
+          const { DRACOLoader } = await import("three/addons/loaders/DRACOLoader.js");
+          const L = new GLTFLoader().setDRACOLoader(new DRACOLoader().setDecoderPath("../vendor/draco/"));
+          const gl = await L.loadAsync(`.cache/wild/${id}.glb`);
+          const b = new THREE.Box3().setFromObject(gl.scene, true), sz = b.getSize(new THREE.Vector3());
+          gl.scene.scale.setScalar(3.2 / sz.y);
+          gl.scene.position.set(x, -b.min.y * (3.2 / sz.y), z);
+          scene.add(gl.scene);
+          labels.push({ el: mk(`RAW #${id} ${dex[id].name}`), p: new THREE.Vector3(x, -0.2, z - 2.7) });
+          return;
+        }
+        const sp = await prepareSpecies(id, dex[id], "../", 3.2, {
+          material: (m) => new THREE.MeshLambertMaterial({ color: m.color, map: m.map || null, transparent: m.transparent, alphaTest: m.alphaTest || (m.transparent ? 0.3 : 0), side: m.side }),
+        });
+        // one instance, with the same per-instance gait attribute the game uses
+        const ga = new THREE.InstancedBufferAttribute(new Float32Array(2), 2);
+        const g = new THREE.Group();
+        for (const p of sp.parts) {
+          p.geometry.setAttribute("aGait", ga);
+          const im = new THREE.InstancedMesh(p.geometry, p.material, 1);
+          im.setMatrixAt(0, new THREE.Matrix4());
+          g.add(im);
+        }
+        animated.push({ ga, rig: sp.rig, L: sp.rig.legTop, h: sp.h, ph: Math.random() * 6 });
+        g.position.set(x, 0, z);
+        scene.add(g);
+        const ground = new THREE.Mesh(new THREE.PlaneGeometry(5, 5).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: "#c9d7c0" }));
+        ground.position.set(x, -0.001, z);
+        scene.add(ground);
+        const edge = new THREE.Mesh(new THREE.BoxGeometry(5, 0.02, 0.02), new THREE.MeshBasicMaterial({ color: "red" }));
+        edge.position.set(x, 0, z - 2.5);
+        scene.add(edge);
+        const arrow = new THREE.ArrowHelper(new THREE.Vector3(0, 0, -1), new THREE.Vector3(x + 2.2, 0.05, z), 1.6, 0x2255ff);
+        scene.add(arrow);
+        const kind = ["no legs", "biped", "quad", "wings"][sp.rig.mode];
+        labels.push({ el: mk(`#${id} ${dex[id].name} · ${dex[id].role} · ${kind}`), p: new THREE.Vector3(x, -0.2, z - 2.7) });
+      }));
+      if (anim) {
+        // the same stride maths as wild.js → pose(): one cycle moves the body 4·L·sin(amp)
+        const v = anim === "run" ? 4 : 1.6, amp = anim === "run" ? 0.62 : 0.32;
+        let last = performance.now();
+        renderer.setAnimationLoop((now) => {
+          const dt = Math.min(0.05, (now - last) / 1000);
+          last = now;
+          for (const a of animated) {
+            if (a.rig.mode === 3) (a.ph += dt * 8.5), (a.ga.array[1] = 0.55);
+            else if (a.rig.mode) (a.ph += Math.min(26, (Math.PI * v) / (2 * Math.max(0.15, a.L) * Math.sin(amp))) * dt), (a.ga.array[1] = amp);
+            a.ga.array[0] = a.ph % (Math.PI * 2);
+            a.ga.needsUpdate = true;
+          }
+          renderer.render(scene, camera);
+        });
+      }
+      renderer.render(scene, camera);
+      for (const l of labels) {
+        const v = l.p.clone().project(camera);
+        l.el.style.left = ((v.x + 1) / 2) * innerWidth + "px";
+        l.el.style.top = ((1 - v.y) / 2) * innerHeight + "px";
+      }
+      window.previewReady = true;
+    </script>
+  </body>
+</html>

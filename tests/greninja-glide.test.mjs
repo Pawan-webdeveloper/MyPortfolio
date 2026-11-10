@@ -28,6 +28,7 @@ function getUpdate(car, floor, collision, landing = 0) {
     keys: {},
     game: { boost: 0 },
     groundAt: floor,
+    ninjaFloor: floor,
     obstacleTop: () => 10,
     collide: () => collision(car),
     greninjaBody: { rotation: { set() {} } },

@@ -741,6 +741,15 @@
       body.touch #brand h1{font-size:22px}
       body.touch #minimap{width:120px;height:120px;top:12px;right:calc(14px + env(safe-area-inset-right))}
       body.touch #tip{bottom:auto;top:78px}
+      /* phones: the place name is a small black caption that gets out of the way fast, no white backing */
+      body.touch #title{top:66px;transform:translate(-50%,0);transition:opacity .35s}
+      body.touch #title.show{transform:translate(-50%,0)}
+      body.touch #title .jp{display:none}
+      body.touch #title .big{font-size:21px;color:#1f1d2b;font-style:normal;text-shadow:0 0 2px rgba(255,255,255,.95),0 0 1px #fff}
+      body.touch #title .sub{display:none}
+      body.touch #tip{background:none!important;border:0!important;box-shadow:none!important;padding:0;transition:opacity .3s}
+      body.touch #tip h3{font-size:16px;color:#1f1d2b;text-shadow:none}
+      body.touch #tip p{display:none}
       body.touch #hint{bottom:auto;top:130px}
       body.touch #toast{bottom:auto;top:160px}
       body.touch #intro{transform:translate(50%,-50%) scale(.82);right:50%}
@@ -976,6 +985,8 @@
       import * as THREE from "three";
       import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
       import { DRACOLoader } from "three/addons/loaders/DRACOLoader.js";
+      import { createWild } from "./wild/wild.js";
+      import { createWorldMap } from "./nav/worldmap.js";
 
       /* =========================================================
    utils
@@ -991,6 +1002,8 @@
       }
       let rand = mulberry32(20260925);
       const runtimeRand = rand;
+      let wild = null; // wild Pokémon (wild/wild.js), set once their data has loaded
+      let worldMap = null; // full-screen map + routes (nav/worldmap.js)
       const RR = (a, b) => a + (b - a) * rand();
       const pick = (a) => a[Math.floor(rand() * a.length)];
       const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -1381,6 +1394,13 @@
         const rh = Math.max(b, WATER_Y + 1.8),
           t = smooth(HALF + SH, HALF + 80, rd);
         HV.h = rh + (full - rh) * t - (1 - t) * 0.08;
+        if (HV.h < WATER_Y) {
+          // lakes outside towns are deep (only Greninja can cross them); town ponds stay shallow.
+          // The shoreline itself (h = WATER_Y) doesn't move.
+          const k = 1 - smooth(0.3, 0.6, tw),
+            d = WATER_Y - HV.h;
+          HV.h = WATER_Y - d * (1 + 2.5 * k) - k * smooth(0.3, 2.5, d) * 6;
+        }
         HV.b = b;
         HV.tw = tw;
         HV.mm = mm;
@@ -1427,6 +1447,11 @@
           );
         return Math.max(h, rampH(x, z), WATER_Y - 0.9);
       }
+      // Greninja can run on water: its floor never drops below the surface
+      const ninjaFloor = (x, z) => Math.max(groundAt(x, z), WATER_Y + 0.02);
+      // deep water (lakes outside towns, off the causeways): everyone but Greninja sinks here
+      const deepWater = (x, z) =>
+        heightAt(x, z) < WATER_Y - 1.5 && townM(x, z) < 0.5 && roadNear(x, z).d > HALF + SH;
 
       /* =========================================================
    TEXTURES (canvas painted)
@@ -1580,13 +1605,22 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
           uFogNear: { value: FOG_N },
           uFogFar: { value: FOG_F },
           uDark: { value: 0 },
+          // water depth around the player (see updateSeaDepth): deep lakes read darker
+          uDepthTex: { value: null },
+          uDepthO: { value: new THREE.Vector2(1e9, 1e9) },
+          uDepthS: { value: 1 },
+          uAbyss: { value: new THREE.Color("#2a6f9e") },
         },
         vertexShader: `varying vec3 vW;void main(){vec4 w=modelMatrix*vec4(position,1.);vW=w.xyz;gl_Position=projectionMatrix*viewMatrix*w;}`,
-        fragmentShader: `uniform float uTime,uFogNear,uFogFar,uDark;uniform vec3 uDeep,uShallow,uFoam,uFog;varying vec3 vW;${NOISE}
+        fragmentShader: `uniform float uTime,uFogNear,uFogFar,uDark,uDepthS;uniform vec3 uDeep,uShallow,uFoam,uFog,uAbyss;uniform vec2 uDepthO;uniform sampler2D uDepthTex;varying vec3 vW;${NOISE}
   void main(){
     vec2 p=vW.xz*.015;
     float n=fbm(p*1.6+uTime*.02);
     vec3 col=mix(uDeep,uShallow,smoothstep(.28,.72,n));
+    vec2 duv=(vW.xz-uDepthO)/uDepthS;
+    float dep=(duv.x<0.||duv.y<0.||duv.x>1.||duv.y>1.)?.3:texture2D(uDepthTex,duv).r;
+    col=mix(col,uAbyss,smoothstep(.05,.65,dep)*.8);
+    col=mix(col,uShallow*1.06,(1.-smoothstep(0.,.05,dep))*.55);
     float r=1.-abs(noise(p*5.+vec2(uTime*.12,-uTime*.07))*2.-1.);
     float r2=1.-abs(noise(p*10.3-uTime*.09)*2.-1.);
     col=mix(col,uFoam,clamp(smoothstep(.92,.965,r)*.95+smoothstep(.95,.985,r2)*.6,0.,1.));
@@ -1602,6 +1636,40 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
       );
       sea.position.y = WATER_Y;
       scene.add(sea);
+      /* water depth map around the player for the sea shader: 96×96 texels, 18 u each,
+         rebuilt a few rows per frame whenever you travel far enough */
+      const DN = 96,
+        DS = 18,
+        depthBuf = new Uint8Array(DN * DN),
+        depthWork = new Uint8Array(DN * DN),
+        depthTex = new THREE.DataTexture(depthBuf, DN, DN, THREE.RedFormat),
+        depthJob = { row: -1, ox: 0, oz: 0, init: false };
+      depthTex.minFilter = depthTex.magFilter = THREE.LinearFilter;
+      depthTex.needsUpdate = true;
+      seaMat.uniforms.uDepthTex.value = depthTex;
+      seaMat.uniforms.uDepthS.value = DN * DS;
+      function updateSeaDepth() {
+        const half = (DN * DS) / 2;
+        if (depthJob.row < 0) {
+          const o = seaMat.uniforms.uDepthO.value;
+          if (depthJob.init && Math.hypot(car.x - (o.x + half), car.z - (o.y + half)) < 260) return;
+          depthJob.init = true;
+          depthJob.row = 0;
+          depthJob.ox = Math.round((car.x - half) / DS) * DS;
+          depthJob.oz = Math.round((car.z - half) / DS) * DS;
+        }
+        for (let k = 0; k < 8 && depthJob.row < DN; k++, depthJob.row++) {
+          const z = depthJob.oz + (depthJob.row + 0.5) * DS;
+          for (let i = 0; i < DN; i++)
+            depthWork[depthJob.row * DN + i] = clamp((WATER_Y - heightAt(depthJob.ox + (i + 0.5) * DS, z)) / 18, 0, 1) * 255;
+        }
+        if (depthJob.row >= DN) {
+          depthBuf.set(depthWork);
+          depthTex.needsUpdate = true;
+          seaMat.uniforms.uDepthO.value.set(depthJob.ox, depthJob.oz);
+          depthJob.row = -1;
+        }
+      }
 
       /* =========================================================
    INSTANCED BATCHES + placement helpers
@@ -3543,6 +3611,24 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
         B.cone.add(MW(x, y + 3.85, z, 0.9, 0.7, 0.9), "#6b4a2f");
         colCircle(x, z, 0.5);
       }
+      /* Pokémon herds: the old animal painters still run (so every seeded rand() draw — and the
+         whole world layout — stays identical), but into a sink; the spot becomes a herd of the
+         region's Pokémon instead (wild/wild.js). */
+      const MON_SINK = new Proxy({}, { get: () => ({ add() {} }) });
+      function herdOf(kind, x, z, n, paint) {
+        const keep = B,
+          nc = CC ? CC.cols.length : 0;
+        B = MON_SINK;
+        try {
+          paint();
+        } finally {
+          B = keep;
+        }
+        if (CC) {
+          CC.cols.length = nc;
+          CC.mons.push({ kind, x, z, n });
+        }
+      }
       function cows(x, z, n) {
         for (let k = 0; k < n; k++) {
           const px = x + RR(-12, 12),
@@ -4259,9 +4345,10 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
         place(6, 0.5, "field", { road: 14, r: 2, t: 3 }, (x, h, z, a) =>
           scarecrow(x, h, z, a),
         );
-        place(4, 0.55, "field", { road: 18, r: 12, t: 4 }, (x, h, z) =>
-          cows(x, z, Math.floor(RR(4, 9))),
-        );
+        place(4, 0.55, "field", { road: 18, r: 12, t: 4 }, (x, h, z) => {
+          const n = Math.floor(RR(4, 9));
+          herdOf("cows", x, z, n, () => cows(x, z, n));
+        });
         place(
           2,
           0.35,
@@ -4314,12 +4401,13 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
         place(2, 0.35, "forest", { road: 14, r: 6, t: 3 }, (x, h, z) =>
           treehouse(c, x, h, z),
         );
-        place(4, 0.55, "forest", { road: 14, r: 8, t: 5 }, (x, h, z) =>
-          deer(x, z, Math.floor(RR(2, 6))),
-        );
+        place(4, 0.55, "forest", { road: 14, r: 8, t: 5 }, (x, h, z) => {
+          const n = Math.floor(RR(2, 6));
+          herdOf("deer", x, z, n, () => deer(x, z, n));
+        });
         // lakes
         place(6, 0.6, "lake", { road: 20, r: 6, wet: true }, (x, h, z) =>
-          ducks(x, z),
+          herdOf("ducks", x, z, 6, () => ducks(x, z)),
         );
         place(2, 0.18, "lake", { road: 30, r: 9, wet: true }, (x, h, z) => {
           if (
@@ -4461,14 +4549,16 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
             );
           }
         }
-        place(2, 0.5, "field", { road: 18, r: 10, t: 4 }, (x, h, z) => {
-          for (let k = 0, n = Math.floor(RR(4, 9)); k < n; k++) {
-            const sx = x + RR(-9, 9),
-              sz = z + RR(-9, 9);
-            if (roadNear(sx, sz).d > HALF + SH + 3)
-              sheep(sx, heightAt(sx, sz), sz, rand() * 6.28);
-          }
-        });
+        place(2, 0.5, "field", { road: 18, r: 10, t: 4 }, (x, h, z) =>
+          herdOf("sheep", x, z, 5, () => {
+            for (let k = 0, n = Math.floor(RR(4, 9)); k < n; k++) {
+              const sx = x + RR(-9, 9),
+                sz = z + RR(-9, 9);
+              if (roadNear(sx, sz).d > HALF + SH + 3)
+                sheep(sx, heightAt(sx, sz), sz, rand() * 6.28);
+            }
+          }),
+        );
         if (rand() < 0.6)
           island(x0 + RR(0, CH), RR(180, 320), z0 + RR(0, CH), RR(5, 14));
       }
@@ -6000,6 +6090,7 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
           pads: [],
           ramps: [],
           pois: [],
+          mons: [], // Pokémon herd spots (see herdOf)
         };
         CC = c;
         rand = mulberry32(
@@ -7389,10 +7480,7 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
         if (k === "h") toggleStudio();
         if (k === "f") cycleTime();
         if (k === "e") interact();
-        if (k === "m") {
-          game.minimap = !game.minimap;
-          $("minimap").style.display = game.minimap ? "" : "none";
-        }
+        if (k === "m" && worldMap) worldMap.open(); // full map (M / Esc / Back close it again)
       });
       addEventListener("keyup", (e) => {
         keys[e.key.toLowerCase()] = false;
@@ -7636,7 +7724,7 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
         const el = $("title");
         el.classList.add("show");
         clearTimeout(showTitle.h);
-        showTitle.h = setTimeout(() => el.classList.remove("show"), 3200);
+        showTitle.h = setTimeout(() => el.classList.remove("show"), document.body.classList.contains("touch") ? 1500 : 3200);
         $("zoneName").textContent = z.name;
       }
       function showTip(k, h, p, ms = 4600) {
@@ -7646,7 +7734,7 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
         const el = $("tip");
         el.classList.add("show");
         clearTimeout(showTip.h);
-        showTip.h = setTimeout(() => el.classList.remove("show"), ms);
+        showTip.h = setTimeout(() => el.classList.remove("show"), document.body.classList.contains("touch") ? Math.min(ms, 2200) : ms);
       }
 
       /* region names */
@@ -8775,7 +8863,9 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
         } else {
           const r = nearestRide();
           if (!r) {
-            toast("Walk up to a vehicle and press E");
+            const mon = wild && wild.nearestGreet(car.x, car.z);
+            if (mon) wild.greet(mon);
+            else toast("Walk up to a vehicle or a Pokémon and press E");
             return;
           }
           if (r.p) {
@@ -8931,7 +9021,7 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
       function updateNinjaGlide(dt) {
         const turn = (keys.a || keys.arrowleft ? 1 : 0) - (keys.d || keys.arrowright ? 1 : 0);
         if (ninja.gliding) {
-          const landed = stepNinjaGlide(car, groundAt, turn, keys.shift, dt, () => {
+          const landed = stepNinjaGlide(car, ninjaFloor, turn, keys.shift, dt, () => {
             if (car.y < obstacleTop(car.x, car.z, 0.7) + 2.6) collide(0.7);
           });
           if (landed) landNinja();
@@ -8941,7 +9031,7 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
           car.x -= Math.sin(car.heading) * car.v * dt;
           car.z -= Math.cos(car.heading) * car.v * dt;
           collide(0.7);
-          const ground = groundAt(car.x, car.z);
+          const ground = ninjaFloor(car.x, car.z);
           if (ground < car.y - 0.25) {
             ninja.landing = 0;
             ninja.gliding = true;
@@ -8988,7 +9078,7 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
         car.x += F.x * car.v * dt;
         car.z += F.z * car.v * dt;
         collide(0.7);
-        const g = groundAt(car.x, car.z);
+        const g = ninjaFloor(car.x, car.z);
         if (car.air) {
           car.vy -= 26 * dt;
           car.y += car.vy * dt;
@@ -9002,6 +9092,9 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
           car.vy = 0;
         } else car.y = g;
         if (wasAir && !car.air) landNinja();
+        // running on water: little splashes at Greninja's feet
+        if (!car.air && Math.abs(car.v) > 1 && heightAt(car.x, car.z) < WATER_Y && Math.random() < dt * (keys.shift ? 6 : 3))
+          spawnBurst(V3().set(car.x, WATER_Y + 0.05, car.z), "#bff3f3", 2, V3().set(0, 0.4, 0));
         car.g.position.set(car.x, car.y, car.z);
         car.g.quaternion.setFromAxisAngle(YUP, car.heading);
         carPos.copy(car.g.position);
@@ -9010,6 +9103,103 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
         for (const l of car.skin.userData.limbs)
           l.piv.rotation.x = Math.sin(game.walkPh) * amp * l.k;
         if (A.ctx) A.engG.gain.setTargetAtTime(0, A.ctx.currentTime, 0.1);
+      }
+
+      /* ---- deep water: the jeep (and any borrowed car) and Charizard sink, Greninja doesn't ----
+         You come back up at the last dry spot you passed, facing away from the water. */
+      const sink = { on: false, t: 0, kind: "", x: 0, z: 0, safe: [], safeT: 0 };
+      function trackSafe(dt) {
+        if (sink.on || !game.started || (sink.safeT -= dt) > 0) return;
+        sink.safeT = 0.4;
+        if (heightAt(car.x, car.z) > WATER_Y + 0.6 || roadNear(car.x, car.z).d < HALF) {
+          sink.safe.push({ x: car.x, z: car.z, t: game.t });
+          if (sink.safe.length > 16) sink.safe.shift();
+        }
+      }
+      function sinkSplash() {
+        if (A.ctx) {
+          noiseHit(A.ctx.currentTime, { f: 700, q: 0.6, peak: 0.35, dec: 0.7, out: A.sfx });
+          tone("sine", 180, A.ctx.currentTime + 0.05, 0.4, { peak: 0.12, dec: 0.5, sus: 0, rel: 0.3, out: A.sfx });
+        }
+        spawnBurst(V3().set(car.x, WATER_Y + 0.3, car.z), "#bff3f3", 16, V3().set(0, 1.6, 0));
+      }
+      function startSink(kind) {
+        sink.on = true;
+        sink.t = 0;
+        sink.kind = kind;
+        sink.x = car.x;
+        sink.z = car.z;
+        car.v = 0;
+        game.shake = Math.max(game.shake || 0, 0.45);
+        sinkSplash();
+        toast(kind === "fly" ? "Charizard can't swim! Only Greninja walks on water" : "Too deep! Only Greninja can cross deep water");
+      }
+      function updateSink(dt) {
+        sink.t += dt;
+        const k = Math.min(1, sink.t / 1.4);
+        if (sink.kind === "fly") {
+          glider.speed = 0;
+          glider.pos.y = Math.max(WATER_Y - 4, glider.pos.y - (2 + k * 4) * dt);
+          glider.pitch = damp(glider.pitch, -0.6, 3, dt);
+          glider.g.position.copy(glider.pos);
+          glider.g.rotation.set(glider.pitch, glider.heading, Math.sin(sink.t * 9) * 0.2, "YXZ");
+          car.y = glider.pos.y - 1;
+        } else {
+          car.v = 0;
+          car.y -= (0.8 + k * 2.6) * dt;
+          car.g.position.set(car.x, car.y, car.z);
+          car.g.quaternion.setFromEuler(new THREE.Euler(-0.35 * k, car.heading, Math.sin(sink.t * 5) * 0.08 * k, "YXZ"));
+        }
+        carPos.set(car.x, car.y, car.z);
+        if (Math.random() < dt * 8)
+          spawnBurst(V3().set(sink.x + rr(-1.2, 1.2), WATER_Y + 0.1, sink.z + rr(-1.2, 1.2)), "#bff3f3", 2, V3().set(0, 0.5, 0));
+        if (A.ctx) A.engG.gain.setTargetAtTime(0, A.ctx.currentTime, 0.1);
+        hopQueued = false;
+        if (sink.t > 1.1) game.fadeTarget = 1;
+        if (sink.t > 1.9) respawnFromWater();
+      }
+      function respawnFromWater() {
+        // the newest dry spot from at least a second ago (the last one may be right at the edge)
+        let p = null;
+        for (let i = sink.safe.length - 1; i >= 0; i--) {
+          const q = sink.safe[i];
+          if (game.t - q.t > 1 && heightAt(q.x, q.z) > WATER_Y + 0.6 && !deepWater(q.x, q.z)) {
+            p = q;
+            break;
+          }
+        }
+        // otherwise the nearest road around the splash
+        for (let r = 20; !p && r < 1500; r += 20)
+          for (let a = 0; a < 6.28; a += 0.25) {
+            const x = sink.x + Math.cos(a) * r,
+              z = sink.z + Math.sin(a) * r;
+            if (roadNear(x, z).d < HALF - 2 && !deepWater(x, z)) {
+              p = { x, z };
+              break;
+            }
+          }
+        p = p || findSpawn();
+        // face away from the water you fell into
+        const dx = p.x - sink.x,
+          dz = p.z - sink.z,
+          heading = Math.hypot(dx, dz) > 1 ? Math.atan2(-dx, -dz) : car.heading;
+        if (sink.kind === "fly") {
+          glider.pos.set(p.x, groundAt(p.x, p.z) + 26, p.z);
+          glider.heading = heading;
+          glider.pitch = 0;
+          glider.roll = 0;
+          glider.speed = 30;
+          glider.g.position.copy(glider.pos);
+          car.x = p.x;
+          car.z = p.z;
+        } else {
+          Object.assign(car, { x: p.x, z: p.z, y: groundAt(p.x, p.z), heading, v: 0, vy: 0, air: false });
+          car.g.position.set(car.x, car.y, car.z);
+          car.g.quaternion.setFromAxisAngle(YUP, car.heading);
+        }
+        sink.on = false;
+        game.fadeTarget = 0;
+        toast("Back on dry land");
       }
 
       /* ---- hot-air balloons + paper zeppelins ---- */
@@ -9117,7 +9307,7 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
       balloons.forEach((b) => b.g.scale.setScalar(b.zep ? 1.3 : 1.75));
       const birdMat = toon("#fbf8ef", { side: THREE.DoubleSide }),
         flocks = [];
-      for (let k = 0; k < 8; k++) {
+      for (let k = 0; k < 0; k++) { // paper birds replaced by flocks of bird Pokémon (wild/wild.js)
         const g = new THREE.Group();
         for (let i = 0; i < 7; i++) {
           const b = outlined(new THREE.Mesh(planeGeo, birdMat), 0.03);
@@ -9635,6 +9825,10 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
               const r = nearestRide();
               if (r)
                 txt = `E · get in the ${r.p ? (r.p.g === roverSkin ? "Gengar" : "vehicle") : r.a.type === "icecream" ? "ice-cream van" : r.a.type}`;
+              else if (wild) {
+                const mon = wild.nearestGreet(car.x, car.z);
+                if (mon) txt = `E · greet ${mon.e.name}${mon.kind === "boss" ? " ★" : ""}`;
+              }
             }
           }
           el.textContent = txt;
@@ -9900,7 +10094,8 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
         ["swan", 24],
       ];
       if (Q_.animals < 1) for (const v of ACOUNTS) v[1] = Math.max(2, Math.round(v[1] * Q_.animals));
-      const animals = new Crowd(ASPEC, ACOUNTS, true);
+      // the wandering animals were replaced by wild Pokémon (wild/wild.js); the specs stay for reference
+      const animals = new Crowd(ASPEC, [], true);
       function habitat(x, z) {
         const h = heightAt(x, z);
         if (h < WATER_Y - 1.2) return "lake";
@@ -10015,6 +10210,86 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
         }
         animals.flush();
       }
+
+      /* ---- wild Pokémon (wild/wild.js) ---- */
+      function pokeCry(h, boss) {
+        if (!A.ctx) return;
+        const t = A.ctx.currentTime,
+          f = clamp(1100 / Math.sqrt(Math.max(0.6, h)), 120, 1100) * (0.9 + Math.random() * 0.25);
+        if (boss) {
+          tone("sawtooth", f * 0.5, t, 0.35, { peak: 0.09, dec: 0.3, sus: 0.4, rel: 0.25, out: A.sfx, lp: 900 });
+          tone("square", f * 0.75, t + 0.05, 0.3, { peak: 0.05, dec: 0.3, sus: 0.3, rel: 0.25, out: A.sfx, lp: 1200 });
+        } else {
+          tone("triangle", f, t, 0.07, { peak: 0.08, dec: 0.1, sus: 0.2, rel: 0.08, out: A.sfx });
+          tone("triangle", f * 1.33, t + 0.09, 0.09, { peak: 0.07, dec: 0.12, sus: 0.1, rel: 0.1, out: A.sfx });
+        }
+      }
+      createWild({
+        scene,
+        car,
+        game,
+        glider,
+        camera,
+        chunks,
+        heightAt,
+        groundAt,
+        regionAt,
+        roadNear,
+        HALF,
+        SH,
+        WATER_Y,
+        loader: gltfLoader,
+        quality: Q_.animals,
+        // same toon conversion as the playable Pokémon (loadPokemon)
+        material: (m) => {
+          const t = toon(m.color ? m.color.clone() : 0xffffff, {
+            map: m.map || null,
+            transparent: m.transparent,
+            alphaTest: m.alphaTest || (m.transparent ? 0.3 : 0),
+            side: m.side,
+          });
+          if (t.map) t.map.colorSpace = THREE.SRGBColorSpace;
+          return t;
+        },
+        fx: {
+          burst: (p, c, n) => spawnBurst(p.clone(), c, n),
+          tip: showTip,
+          toast,
+          cry: pokeCry,
+          shake: (v) => (game.shake = Math.max(game.shake || 0, v)),
+        },
+      })
+        .then((w) => (wild = w))
+        .catch((e) => console.warn("[wild] Pokémon disabled:", e));
+
+      /* ---- world map (nav/worldmap.js): M or tap the minimap ---- */
+      worldMap = createWorldMap({
+        car,
+        game,
+        glider,
+        camera,
+        scene,
+        keys,
+        heightAt,
+        groundAt,
+        roadNear,
+        regionAt,
+        townM,
+        forestM,
+        mountainM,
+        deepWater,
+        mapColor: (x, z) => mapColor(x, z, true),
+        roadLines,
+        WATER_Y,
+        HALF,
+        toast,
+        wild: () => wild,
+        canOpen: () => game.started && !document.body.classList.contains("home-on"),
+      });
+      $("minimap").addEventListener("click", (e) => {
+        e.stopPropagation();
+        worldMap.open();
+      });
 
       /* ---- butterflies ---- */
       const wingGeo = (() => {
@@ -10394,6 +10669,7 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
               }
             }
           }
+        if (wild) top = Math.max(top, wild.topAt(x, z, pad));
         return top;
       }
       function surfaceAt(x, z) {
@@ -10471,6 +10747,7 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
             hit = true;
           }
         }
+        if (wild && wild.collide(car, RAD, game.mode === "walk" ? 1.5 : 8, Math.abs(car.v))) hit = true;
         if (hit) {
           if (!wasHit && Math.abs(car.v) > 7) {
             sfxThud(0.35);
@@ -10806,28 +11083,55 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
         forest: [95, 168, 74],
         field: [191, 224, 122],
         sand: [239, 224, 184],
+        deep: [70, 148, 186],
       };
+      // biome colour of a world point, shared by the minimap and the full map (nav/worldmap.js)
+      function mapColor(x, z, noRoads = false) {
+        if (!noRoads && roadNear(x, z).d < HALF + 3.5) return MMC.road;
+        const b = baseH(x, z),
+          m = mountainM(x, z),
+          tw = townM(x, z);
+        if (m > 0.3) return m > 0.75 ? MMC.snow : MMC.rock;
+        if (b < WATER_Y) return tw < 0.5 && b < WATER_Y - 0.4 ? MMC.deep : MMC.water;
+        if (b < WATER_Y + 1) return MMC.sand;
+        if (tw > 0.5) return MMC.town;
+        if (cherryM(x, z) > 0.5) return MMC.grove;
+        if (meadowM(x, z) > 0.5) return MMC.meadow;
+        if (forestM(x, z, tw) > 0.45) return MMC.forest;
+        return MMC.field;
+      }
+      // the road network as polylines inside a rectangle (crisp roads on the full map)
+      function roadLines(x0, z0, x1, z1, step) {
+        const out = [];
+        for (const f of FAM) {
+          const a0 = f.ax ? z0 : x0,
+            a1 = f.ax ? z1 : x1,
+            t0 = f.ax ? x0 : z0,
+            t1 = f.ax ? x1 : z1;
+          for (let i = Math.floor((a0 - f.off) / G1) - 1; i <= Math.ceil((a1 - f.off) / G1) + 1; i++) {
+            let line = [];
+            for (let t = t0 - step; t <= t1 + step; t += step) {
+              const c = centerOf(f, i, t),
+                x = f.ax ? t : c,
+                z = f.ax ? c : t;
+              if (!f.sec || townM(x, z) >= 0.5) line.push([x, z]);
+              else if (line.length) {
+                if (line.length > 1) out.push({ pts: line, sec: f.sec });
+                line = [];
+              }
+            }
+            if (line.length > 1) out.push({ pts: line, sec: f.sec });
+          }
+        }
+        return out;
+      }
       function drawMinimap() {
         const d = mmImg.data;
         for (let py = 0; py < MMN; py++)
           for (let px = 0; px < MMN; px++) {
             const x = car.x + (px - MMN / 2) * MMS,
               z = car.z + (py - MMN / 2) * MMS;
-            let c;
-            if (roadNear(x, z).d < HALF + 3.5) c = MMC.road;
-            else {
-              const b = baseH(x, z),
-                m = mountainM(x, z),
-                tw = townM(x, z);
-              if (m > 0.3) c = m > 0.75 ? MMC.snow : MMC.rock;
-              else if (b < WATER_Y) c = MMC.water;
-              else if (b < WATER_Y + 1) c = MMC.sand;
-              else if (tw > 0.5) c = MMC.town;
-              else if (cherryM(x, z) > 0.5) c = MMC.grove;
-              else if (meadowM(x, z) > 0.5) c = MMC.meadow;
-              else if (forestM(x, z, tw) > 0.45) c = MMC.forest;
-              else c = MMC.field;
-            }
+            const c = mapColor(x, z);
             const k = (py * MMN + px) * 4;
             d[k] = c[0];
             d[k + 1] = c[1];
@@ -10895,6 +11199,10 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
             W * 0.022,
             true,
           );
+        if (wild)
+          wild.minimap(mmG, W, (x, z) => [((x - car.x) / MMS) * s + W / 2, ((z - car.z) / MMS) * s + W / 2]);
+        if (worldMap)
+          worldMap.minimap(mmG, W, (x, z) => [((x - car.x) / MMS) * s + W / 2, ((z - car.z) / MMS) * s + W / 2]);
         mmG.save();
         mmG.translate(W / 2, W / 2);
         mmG.rotate(-car.heading);
@@ -11080,7 +11388,7 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
               35,
               "✿ Meadows",
               "Follow the butterflies",
-              "Pink on the minimap = wildflower meadows · horses, foxes, rabbits and more roam the world",
+              "Pink on the minimap = wildflower meadows · every region has its own wild Pokémon — and one boss",
             ],
             [
               60,
@@ -11149,13 +11457,24 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
         game.t += dt;
         autoRes(dt);
         updateChunks(1);
-        if (glider.on) updateGlider(dt);
-        else if (game.mode === "walk") updateWalk(dt);
-        else updateCar(dt);
+        if (sink.on) updateSink(dt);
+        else if (glider.on) {
+          updateGlider(dt);
+          // Charizard skimming the surface of deep water goes under
+          if (game.started && glider.kind !== "eagle" && glider.pos.y < WATER_Y + 1.6 && deepWater(glider.pos.x, glider.pos.z)) startSink("fly");
+        } else if (game.mode === "walk") updateWalk(dt);
+        else {
+          updateCar(dt);
+          if (game.started && !car.air && deepWater(car.x, car.z)) startSink("drive");
+        }
+        trackSafe(dt);
+        updateSeaDepth();
         animatePokemon(dt);
         updateTraffic(dt);
         updatePeople(dt);
         updateAnimals(dt);
+        if (wild) wild.update(dt, game.t);
+        if (worldMap) worldMap.update(dt);
         updateButterflies(dt);
         updateGrass(dt);
         updateSkyLife(dt);
@@ -11233,6 +11552,12 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
         traffic,
         people,
         animals,
+        get wild() {
+          return wild;
+        },
+        get worldMap() {
+          return worldMap;
+        },
         parked,
         glider,
         ninja,
