@@ -72,7 +72,7 @@ export function createSettings(ctx) {
 
   const ABILITY = {
     charizard: ["Flies anywhere", "Press 1 (or SWITCH). W climbs, S dives, A/D bank. Can't swim — deep water sinks it."],
-    gengar: ["Drives the jeep", "Press 2 (or SWITCH). Fastest on roads, can borrow any car with E. Deep water sinks the jeep."],
+    gengar: ["Jeep & on foot", "Press 2 (or SWITCH) to drive and call the jeep back; E gets out and leaves it parked. Fastest on roads; deep water sinks him."],
     greninja: ["Runs, jumps & walks on water", "Press 3 (or SWITCH). The only one that can cross deep lakes; glides down from Charizard."],
   };
   const chip = (t) => `<span class="chip" style="background:${TYPE_COLORS[t]}">${t}</span>`;

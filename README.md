@@ -90,7 +90,7 @@ The portfolio content lives in [`home/content.js`](home/content.js); the 3D duo 
 ### Three ways to travel
 
 - **Charizard** — fly over anything, climb and dive, and land wherever you like.
-- **Gengar** — drive a jeep, park it, get out, and borrow any car, bus or tractor you find.
+- **Gengar** — drive his jeep or walk on foot; E leaves the jeep parked and empty, pressing 2 again calls it back. You can also borrow any car, bus or tractor you find.
 - **Greninja** — run, jump, glide and cross deep water on the surface, with Ash-inspired details during the glide and landing.
 
 Press **E** to switch between riding and walking, and **Switch** to cycle Pokémon.

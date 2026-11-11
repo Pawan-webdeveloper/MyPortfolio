@@ -146,6 +146,7 @@ function getAppearance(ninja) {
     car: { skin: {} },
     roverSkin: {},
     humanSkin: {},
+    gengarSkin: {},
   };
   vm.createContext(ctx);
   vm.runInContext(functionSource('animatePokemon'), ctx);

@@ -914,7 +914,7 @@
           </tr>
           <tr>
             <td>E</td>
-            <td>Walk as Greninja / get into any vehicle (even traffic)</td>
+            <td>Get out and walk as Gengar or Greninja · get into any vehicle (even traffic)</td>
           </tr>
           <tr>
             <td>1 · 2 · 3</td>
@@ -1212,6 +1212,7 @@
         ]),
         loadPokemon("models/pokemon/gengar.glb", 2.6, ["LToe", "LFoot"]),
         loadPokemon("models/pokemon/greninja-lite.glb?v=glide-1", 2.6, ["left_foot_index_02", "left_foot_55"]),
+        loadPokemon("models/pokemon/gengar.glb", 2.6, ["LToe", "LFoot"]),
       ]);
       /* =========================================================
    WORLD — endless watercolour terrain: hills, lakes, towns,
@@ -6468,7 +6469,7 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
         parent.add(m);
         return m;
       }
-      const [charizardM, gengarM, greninjaM] = await pokemonP;
+      const [charizardM, gengarM, greninjaM, gengarFootM] = await pokemonP;
       const steeringWheel = new THREE.Group();
       {
         const bx = (a, b, c) => new THREE.BoxGeometry(a, b, c),
@@ -7424,6 +7425,7 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
       let hopQueued = false;
       const game = {
         mode: "drive",
+        footForm: "greninja",
         records: 0,
         started: false,
         ended: false,
@@ -8749,6 +8751,46 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
         len: 4.2,
       };
       humanSkin.name = "Greninja";
+      const gengarSkin = new THREE.Group(),
+        gengarBody = new THREE.Group();
+      gengarBody.add(gengarFootM.root);
+      gengarSkin.add(gengarBody);
+      gengarSkin.name = "Gengar (on foot)";
+      gengarSkin.userData = {
+        body: gengarBody,
+        wheels: [],
+        fw: [],
+        limbs: [],
+        horn: null,
+        kind: "human",
+        speed: 1,
+        len: 4.2,
+      };
+      const gengarWalk = [];
+      {
+        const worldAxis = (bone, x, y, z) => {
+          gengarSkin.updateMatrixWorld(true);
+          return V3().set(x, y, z).applyQuaternion(
+            bone.getWorldQuaternion(new THREE.Quaternion()).invert(),
+          );
+        };
+        // arms rest at his sides instead of the bind-pose T
+        for (const [prefix, side] of [["LShoulder", 1], ["RShoulder", -1]])
+          for (const bone of findBones(gengarFootM.model, [prefix]))
+            bone.quaternion.multiply(
+              new THREE.Quaternion().setFromAxisAngle(worldAxis(bone, 0, 0, 1), side * 0.85),
+            );
+        gengarSkin.updateMatrixWorld(true);
+        for (const [prefix, side] of [["LThigh", 1], ["RThigh", -1], ["LArm", 1], ["RArm", -1]])
+          for (const bone of findBones(gengarFootM.model, [prefix]))
+            gengarWalk.push({
+              bone,
+              rest: bone.quaternion.clone(),
+              axis: worldAxis(bone, 1, 0, 0),
+              side,
+              k: prefix.endsWith("Thigh") ? 1 : 0.5,
+            });
+      }
       const ninja = { gliding: false, landing: 0, pitch: 0, bank: 0, awakened: false };
       {
         const detail = (points, color) => {
@@ -8802,6 +8844,7 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
           ninja.awakened = false;
           greninjaBody.rotation.set(0, 0, 0);
         }
+        gengarM.root.visible = g === roverSkin;
         if (car.skin) car.g.remove(car.skin);
         car.skin = g;
         g.position.set(0, 0, 0);
@@ -8845,6 +8888,36 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
         }
         return best;
       }
+      // park the current vehicle and step out of it; the driver stays with the new skin
+      function leaveVehicle() {
+        const g = car.skin;
+        car.g.remove(g);
+        scene.add(g);
+        g.position.copy(car.g.position);
+        g.quaternion.copy(car.g.quaternion);
+        parked.push({
+          g,
+          x: car.x,
+          y: car.y,
+          z: car.z,
+          heading: car.heading,
+        });
+        if (parked.length > 14) {
+          const i = parked.findIndex((p) => p.g !== roverSkin);
+          if (i >= 0) {
+            scene.remove(parked[i].g);
+            parked.splice(i, 1);
+          }
+        }
+        const R = _r.set(-Math.cos(car.heading), 0, Math.sin(car.heading)); // left of the vehicle
+        car.x += R.x * 2.8;
+        car.z += R.z * 2.8;
+        game.mode = "walk";
+        car.v = 0;
+        car.vy = 0;
+        car.air = false;
+        car.y = groundAt(car.x, car.z);
+      }
       function interact() {
         if (glider.on || !game.started || ninja.gliding || ninja.landing > 0) return;
         if (game.mode === "drive") {
@@ -8852,34 +8925,15 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
             toast("Slow down to get out");
             return;
           }
-          const g = car.skin;
-          car.g.remove(g);
-          scene.add(g);
-          g.position.copy(car.g.position);
-          g.quaternion.copy(car.g.quaternion);
-          parked.push({
-            g,
-            x: car.x,
-            y: car.y,
-            z: car.z,
-            heading: car.heading,
-          });
-          if (parked.length > 14) {
-            const i = parked.findIndex((p) => p.g !== roverSkin);
-            if (i >= 0) {
-              scene.remove(parked[i].g);
-              parked.splice(i, 1);
-            }
-          }
-          const R = _r.set(-Math.cos(car.heading), 0, Math.sin(car.heading)); // left of the vehicle
-          car.x += R.x * 2.8;
-          car.z += R.z * 2.8;
-          setSkin(humanSkin);
-          game.mode = "walk";
-          car.v = 0;
-          car.air = false;
-          car.y = groundAt(car.x, car.z);
-          toast("Greninja on foot · E near any vehicle to get in");
+          const foot = car.skin === roverSkin || game.footForm === "gengar" ? gengarSkin : humanSkin;
+          leaveVehicle();
+          setSkin(foot);
+          game.footForm = foot === gengarSkin ? "gengar" : "greninja";
+          toast(
+            foot === gengarSkin
+              ? "Gengar on foot · E near any vehicle to get in"
+              : "Greninja on foot · E near any vehicle to get in",
+          );
           sfxHop();
         } else {
           // a boss right next to you comes first: E opens the challenge card
@@ -8976,15 +9030,18 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
           nFall.reset().play();
           spawnBurst(pos, "#75e9f3", 24);
           $("walkBtn").textContent = "Get in ⏎";
+          game.footForm = "greninja";
           flyButtons();
           toast("Ash-Greninja · glide with A/D · landing ahead");
           return;
         }
-        if (game.mode === "drive") {
-          car.v = 0;
-          interact();
+        if (game.mode === "drive") leaveVehicle();
+        if (car.skin !== humanSkin) {
+          setSkin(humanSkin);
+          game.footForm = "greninja";
           toast("Greninja! · 1 / 2 / 3 to switch Pokémon");
         } else toast(ninja.gliding ? "Ash-Greninja · glide with A/D" : "Greninja · 1 / 2 / 3 to switch Pokémon");
+        $("walkBtn").textContent = "Get in ⏎";
       }
       function selectPokemon(id) {
         if (!game.started) return;
@@ -9001,20 +9058,44 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
         if (!game.started) return;
         if (glider.on) toggleFly(glider.kind);
         if (game.mode === "drive" && car.skin === roverSkin) return;
-        const airborne = car.air || ninja.gliding, vy = car.vy;
         ninja.gliding = false;
         ninja.landing = 0;
         ninja.awakened = false;
         greninjaBody.rotation.set(0, 0, 0);
-        if (game.mode === "drive") { car.v = 0; interact(); }
+        if (game.mode === "drive") leaveVehicle();
         const p = parked.find((q) => q.g === roverSkin);
         if (p) {
-          Object.assign(p, { x: car.x, y: car.y, z: car.z, heading: car.heading });
-          p.g.position.set(car.x, car.y, car.z);
+          // his jeep is parked somewhere: step in where it is, or call it to him
+          parked.splice(parked.indexOf(p), 1);
+          scene.remove(p.g);
+          setSkin(p.g);
+          if (Math.hypot(p.x - car.x, p.z - car.z) > 8) {
+            p.x = car.x;
+            p.z = car.z;
+            p.heading = car.heading;
+          }
+          Object.assign(car, {
+            x: p.x,
+            z: p.z,
+            y: groundAt(p.x, p.z),
+            heading: p.heading,
+            v: 0,
+            vy: 0,
+            air: false,
+          });
+          game.mode = "drive";
+          game.footForm = "gengar";
+          car.g.position.set(car.x, car.y, car.z);
+          car.g.quaternion.setFromAxisAngle(YUP, car.heading);
+          $("walkBtn").textContent = "Get out ⎋";
+          flyButtons();
+          toast("Gengar & his jeep · E to get out and walk");
+          return;
         }
-        interact();
-        if (airborne) { car.air = true; car.vy = vy; }
-        toast("Gengar! · 1 for Charizard · 3 for Greninja");
+        if (car.skin !== gengarSkin) setSkin(gengarSkin);
+        game.footForm = "gengar";
+        $("walkBtn").textContent = "Get in ⏎";
+        toast("Gengar on foot · 1 for Charizard · 3 for Greninja");
       }
       function cycleTime() {
         const buttons = [...document.querySelectorAll("[data-t]")],
@@ -9557,6 +9638,16 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
           ]) action.setEffectiveWeight(damp(action.getEffectiveWeight(), weight, 16, dt));
           nMixer.update(dt);
         }
+        if (car.skin === gengarSkin && !glider.on) {
+          const w = Math.min(1, Math.abs(car.v) / 5.2),
+            ph = game.walkPh || 0,
+            swing = Math.sin(ph * 1.3) * 0.55 * w;
+          for (const r of gengarWalk)
+            r.bone.quaternion
+              .copy(r.rest)
+              .multiply(pkQ.setFromAxisAngle(r.axis, swing * r.k * r.side));
+          gengarBody.position.y = Math.abs(swing) * 0.09;
+        }
       }
       function screech() {
         if (!A.ctx) return;
@@ -9604,7 +9695,7 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
           sfxHop();
           toast(
             game.mode === "walk"
-              ? "Greninja is back on foot"
+              ? `${car.skin === gengarSkin ? "Gengar" : "Greninja"} is back on foot`
               : "Charizard landed",
           );
         } else if (glider.on) {
@@ -10314,7 +10405,7 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
                 : k === "gengar"
                   ? loadPokemon("models/pokemon/gengar.glb", 2.6, ["LToe", "LFoot"])
                   : loadPokemon("models/pokemon/greninja-lite.glb?v=glide-1", 2.6, ["left_foot_index_02", "left_foot_55"]),
-            currentPokemon: () => (glider.on ? "charizard" : car.skin === roverSkin ? "gengar" : "greninja"),
+            currentPokemon: () => (glider.on ? "charizard" : car.skin === roverSkin || car.skin === gengarSkin ? "gengar" : "greninja"),
           });
         })
         .catch((e) => console.warn("[wild] Pokémon disabled:", e));
@@ -11554,8 +11645,10 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
           updateGlider(dt);
           // Charizard skimming the surface of deep water goes under
           if (game.started && glider.kind !== "eagle" && glider.pos.y < WATER_Y + 1.6 && deepWater(glider.pos.x, glider.pos.z)) startSink("fly");
-        } else if (game.mode === "walk") updateWalk(dt);
-        else {
+        } else if (game.mode === "walk") {
+          updateWalk(dt);
+          if (game.started && car.skin === gengarSkin && !car.air && deepWater(car.x, car.z)) startSink("walk");
+        } else {
           updateCar(dt);
           if (game.started && !car.air && deepWater(car.x, car.z)) startSink("drive");
         }
