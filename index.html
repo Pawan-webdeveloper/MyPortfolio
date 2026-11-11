@@ -730,6 +730,9 @@
       .tb.gold{background:var(--gold)}
       .tb.on{transform:translate(1px,1px);box-shadow:0 0 0 var(--ink);filter:brightness(.92)}
       .tb span{font-size:22px;letter-spacing:0}
+      .tb{flex-direction:column}
+      .tb span.t{display:block;font-size:8.5px;letter-spacing:.06em;line-height:1.1}
+      .tb span:not(.t)+span.t{margin-top:-2px}
       #tq{position:absolute;left:calc(14px + env(safe-area-inset-left));top:112px;width:58px;height:58px;font-size:8px;pointer-events:auto}
       #rotate{display:none;position:fixed;inset:0;z-index:9;background:var(--paper);align-items:center;justify-content:center;flex-direction:column;gap:10px;
         font:700 12px 'DM Sans';letter-spacing:.2em;text-transform:uppercase;text-align:center;padding:30px}
@@ -883,7 +886,7 @@
           <button class="btn" id="camBtn">Camera · Chase</button>
           <button class="btn" id="walkBtn">Get out ⎋</button>
           <button class="btn" id="flyBtn">Switch ⇄</button>
-          <button class="btn" id="eagleBtn">Greninja</button>
+          <button class="btn" id="eagleBtn">Settings ⚙</button>
           <button class="btn" id="studioBtn">Studio ✎</button>
         </div>
       </div>
@@ -960,8 +963,8 @@
         <button id="tq" class="tb qbtn">⚙<br>QUALITY</button>
         <div id="tbtns">
           <button class="tb" data-act="c"><span>🎥</span></button>
-          <button class="tb" data-act="f"><span>SWITCH</span></button>
-          <button class="tb" data-act="g"><span>NINJA</span></button>
+          <button class="tb" data-act="f"><span class="t">SWITCH</span></button>
+          <button class="tb" data-act="g"><span>⚙</span><span class="t">SETTINGS</span></button>
           <button class="tb gold" data-act="e">GET<br>IN/OUT</button>
           <button class="tb" data-k="shift">BOOST</button>
           <button class="tb big" data-k=" ">HOP</button>
@@ -986,7 +989,9 @@
       import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
       import { DRACOLoader } from "three/addons/loaders/DRACOLoader.js";
       import { createWild } from "./wild/wild.js";
+      import { createBattle } from "./wild/battle.js";
       import { createWorldMap } from "./nav/worldmap.js";
+      import { createSettings } from "./ui/settings.js";
 
       /* =========================================================
    utils
@@ -1003,7 +1008,9 @@
       let rand = mulberry32(20260925);
       const runtimeRand = rand;
       let wild = null; // wild Pokémon (wild/wild.js), set once their data has loaded
+      let battle = null; // boss battles (wild/battle.js), set alongside wild
       let worldMap = null; // full-screen map + routes (nav/worldmap.js)
+      let settings = null; // ⚙ settings & guide (ui/settings.js)
       const RR = (a, b) => a + (b - a) * rand();
       const pick = (a) => a[Math.floor(rand() * a.length)];
       const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -6941,6 +6948,17 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
             [9, 12, 16, 19],
           ],
         },
+        {
+          n: "Clash of Paper",
+          root: 57,
+          bpm: 126,
+          prog: [
+            [0, 3, 7, 10],
+            [0, 3, 7, 10],
+            [8, 12, 15, 19],
+            [7, 10, 14, 17],
+          ],
+        },
       ];
       const BANDS = ["TRIO", "MUSIC BOX", "STRINGS"];
       const MAJ = [0, 2, 4, 5, 7, 9, 11],
@@ -7474,13 +7492,14 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
           toast("♫ " + SONGS[A.song].n);
         }
         if (k === "b") cycleBand();
-        if ("123".includes(k) && k.length === 1) selectPokemon(k);
+        const inBattle = battle && battle.active;
+        if (!inBattle && "123".includes(k) && k.length === 1) selectPokemon(k);
         if (k === "0") $("autoBtn").click();
         if (k === "p") game.photo = true;
         if (k === "h") toggleStudio();
-        if (k === "f") cycleTime();
+        if (k === "f" && !inBattle) cycleTime();
         if (k === "e") interact();
-        if (k === "m" && worldMap) worldMap.open(); // full map (M / Esc / Back close it again)
+        if (k === "m" && worldMap && !inBattle) worldMap.open(); // full map (M / Esc / Back close it again)
       });
       addEventListener("keyup", (e) => {
         keys[e.key.toLowerCase()] = false;
@@ -7532,7 +7551,7 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
       if (IS_TOUCH) {
         document.body.classList.add("touch");
         const kt = document.querySelector("#intro .keys");
-        if (kt) kt.innerHTML = "<b>Left stick</b> drive / walk / fly · <b>HOP</b> jump or flap · <b>BOOST</b> hold for speed · <b>GET IN/OUT</b> walk or take any vehicle · <b>SWITCH</b> Gengar / Charizard / Greninja · <b>NINJA</b> Greninja · <b>🎥</b> camera · drag the screen to look";
+        if (kt) kt.innerHTML = "<b>Left stick</b> drive / walk / fly · <b>HOP</b> jump or flap · <b>BOOST</b> hold for speed · <b>GET IN/OUT</b> walk or take any vehicle · <b>SWITCH</b> Gengar / Charizard / Greninja · <b>⚙</b> settings · <b>🎥</b> camera · drag the screen to look";
         const stick = $("stick"), knob = $("knob");
         let sid = null, cx0 = 0, cy0 = 0;
         const moveStick = (e) => {
@@ -7567,8 +7586,8 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
             if (navigator.vibrate) navigator.vibrate(8);
             if (k !== undefined) { keys[k] = true; if (k === " ") hopQueued = true; }
             if (act === "e") interact();
-            if (act === "f") cycleForm();
-            if (act === "g") selectPokemon("3");
+            if (act === "f" && !(battle && battle.active)) cycleForm();
+            if (act === "g" && settings) settings.open();
             if (act === "c") cycleCam();
           });
           const up = () => { b.classList.remove("on"); if (k !== undefined) keys[k] = false; };
@@ -7646,7 +7665,7 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
       }
       $("studioBtn").onclick = toggleStudio;
       $("flyBtn").onclick = () => cycleForm();
-      $("eagleBtn").onclick = () => selectPokemon("3");
+      $("eagleBtn").onclick = () => settings && settings.open();
       $("walkBtn").onclick = () => interact();
       $("helpBtn").onclick = () => $("help").classList.toggle("show");
       $("helpClose").onclick = () => $("help").classList.remove("show");
@@ -8861,10 +8880,17 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
           toast("Greninja on foot · E near any vehicle to get in");
           sfxHop();
         } else {
+          // a boss right next to you comes first: E opens the challenge card
+          const near = wild && battle && wild.nearestGreet(car.x, car.z);
+          if (near && near.kind === "boss") {
+            battle.offer(near);
+            return;
+          }
           const r = nearestRide();
           if (!r) {
             const mon = wild && wild.nearestGreet(car.x, car.z);
-            if (mon) wild.greet(mon);
+            if (mon && mon.kind === "boss" && battle) battle.offer(mon);
+            else if (mon) wild.greet(mon);
             else toast("Walk up to a vehicle or a Pokémon and press E");
             return;
           }
@@ -9550,9 +9576,7 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
       }
       function flyButtons() {
         $("flyBtn").classList.toggle("on", glider.on && glider.kind === "plane");
-        $("eagleBtn").classList.toggle("on", glider.on && glider.kind === "eagle");
         $("flyBtn").textContent = "Switch ⇄";
-        $("eagleBtn").textContent = "Greninja";
       }
       function toggleFly(kind = "plane") {
         if (!game.started) return;
@@ -9822,12 +9846,14 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
           let txt = "";
           if (game.started && !glider.on) {
             if (game.mode === "walk") {
-              const r = nearestRide();
-              if (r)
+              const r = nearestRide(),
+                nb = wild && wild.nearestGreet(car.x, car.z);
+              if (nb && nb.kind === "boss") txt = `E · challenge ${nb.e.name} ⚔`;
+              else if (r)
                 txt = `E · get in the ${r.p ? (r.p.g === roverSkin ? "Gengar" : "vehicle") : r.a.type === "icecream" ? "ice-cream van" : r.a.type}`;
               else if (wild) {
                 const mon = wild.nearestGreet(car.x, car.z);
-                if (mon) txt = `E · greet ${mon.e.name}${mon.kind === "boss" ? " ★" : ""}`;
+                if (mon) txt = mon.kind === "boss" ? `E · challenge ${mon.e.name} ⚔` : `E · greet ${mon.e.name}`;
               }
             }
           }
@@ -10259,7 +10285,36 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
           shake: (v) => (game.shake = Math.max(game.shake || 0, v)),
         },
       })
-        .then((w) => (wild = w))
+        .then((w) => {
+          wild = w;
+          battle = createBattle({
+            camera,
+            car,
+            game,
+            keys,
+            wild: () => wild,
+            toon,
+            A,
+            SONGS,
+            uiRadio,
+            toast,
+            tone,
+            noiseHit,
+            // the same rigged models you play with, loaded fresh for the arena (browser-cached)
+            loadModel: (k) =>
+              k === "charizard"
+                ? loadPokemon("models/pokemon/charizard.glb", 3, ["LToe", "LFoot"], [
+                    { bone: "Spine1", angle: 1.1 },
+                    { bone: "Neck1", angle: -0.7 },
+                    { bone: "LThigh", angle: 0.9 },
+                    { bone: "RThigh", angle: 0.9 },
+                  ])
+                : k === "gengar"
+                  ? loadPokemon("models/pokemon/gengar.glb", 2.6, ["LToe", "LFoot"])
+                  : loadPokemon("models/pokemon/greninja-lite.glb?v=glide-1", 2.6, ["left_foot_index_02", "left_foot_55"]),
+            currentPokemon: () => (glider.on ? "charizard" : car.skin === roverSkin ? "gengar" : "greninja"),
+          });
+        })
         .catch((e) => console.warn("[wild] Pokémon disabled:", e));
 
       /* ---- world map (nav/worldmap.js): M or tap the minimap ---- */
@@ -10286,9 +10341,38 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
         wild: () => wild,
         canOpen: () => game.started && !document.body.classList.contains("home-on"),
       });
+      /* ---- settings & guide (ui/settings.js): ⚙ buttons or Esc ---- */
+      settings = createSettings({
+        game,
+        keys,
+        quality: { tiers: QP.map((q) => q.name), index: QI },
+        selectPokemon,
+        currentPokemon: () => (glider.on ? "charizard" : car.skin === roverSkin ? "gengar" : "greninja"),
+        toggleRain,
+        rainOn: () => ENV.rainOn,
+        timeLabels: ["Dawn", "Morning", "Noon", "Golden", "Dusk", "Night", "Auto"],
+        setTime: (i) => (i < 6 ? document.querySelectorAll("[data-t]")[i].click() : $("autoBtn").click()),
+        radio: () => ({ on: A.on, song: SONGS[A.song] && SONGS[A.song].n }),
+        radioSet,
+        nextSong: () => {
+          nextSong();
+          toast("♫ " + SONGS[A.song].n);
+        },
+        minimap: (on) => {
+          if (on === undefined) return game.minimap;
+          game.minimap = on;
+          $("minimap").style.display = on ? "" : "none";
+        },
+        wild: () => wild,
+        canOpen: () =>
+          game.started &&
+          !document.body.classList.contains("home-on") &&
+          !(battle && (battle.active || battle.offering)) &&
+          !(worldMap && worldMap.isOpen),
+      });
       $("minimap").addEventListener("click", (e) => {
         e.stopPropagation();
-        worldMap.open();
+        if (!(battle && battle.active)) worldMap.open();
       });
 
       /* ---- butterflies ---- */
@@ -11456,6 +11540,12 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
         last = now;
         game.t += dt;
         autoRes(dt);
+        // boss battles run in their own arena scene; the world waits (wild/battle.js)
+        const arena = battle && battle.inArena;
+        if (arena) {
+          battle.update(dt, game.t);
+          game.fade = damp(game.fade, game.fadeTarget, 3, dt);
+        } else {
         updateChunks(1);
         if (sink.on) updateSink(dt);
         else if (glider.on) {
@@ -11480,9 +11570,11 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
         updateSkyLife(dt);
         updateExtras(dt);
         updateCamera(dt);
+        if (battle) battle.update(dt, game.t); // closes the challenge card when you walk away
         updateNotes(dt);
         updateWorld(dt);
         updateHUD(dt);
+        }
         // sync outline fog for per-mesh outline clones
         post.uniforms.uTime.value = game.t;
         post.uniforms.uSpeed.value = Math.max(
@@ -11491,7 +11583,7 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
         );
         post.uniforms.uFade.value = game.fade;
         renderer.setRenderTarget(rt);
-        renderer.render(scene, camera);
+        renderer.render(arena ? battle.scene : scene, camera);
         post.uniforms.tColor.value = rt.texture;
         post.uniforms.tDepth.value = rt.depthTexture;
         renderer.setRenderTarget(null);
@@ -11555,8 +11647,29 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
         get wild() {
           return wild;
         },
+        get battle() {
+          return battle;
+        },
+        get radio() {
+          return { on: A.on, song: SONGS[A.song] && SONGS[A.song].n };
+        },
         get worldMap() {
           return worldMap;
+        },
+        get settings() {
+          return settings;
+        },
+        /** dev aid: render the current frame now and return it as an image (works even when the tab is throttled) */
+        snapshot(type = "image/jpeg") {
+          const arena = battle && battle.inArena;
+          post.uniforms.uFade.value = game.fade;
+          renderer.setRenderTarget(rt);
+          renderer.render(arena ? battle.scene : scene, camera);
+          post.uniforms.tColor.value = rt.texture;
+          post.uniforms.tDepth.value = rt.depthTexture;
+          renderer.setRenderTarget(null);
+          renderer.render(postScene, postCam);
+          return canvas.toDataURL(type, 0.85);
         },
         parked,
         glider,

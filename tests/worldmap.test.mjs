@@ -6,7 +6,7 @@ const html = readFileSync(new URL("../index.html", import.meta.url), "utf8");
 const map = readFileSync(new URL("../nav/worldmap.js", import.meta.url), "utf8");
 
 test("M and the minimap open the full map; Esc/M/Back close it", () => {
-  assert.match(html, /if \(k === "m" && worldMap\) worldMap\.open\(\)/);
+  assert.match(html, /if \(k === "m" && worldMap && !inBattle\) worldMap\.open\(\)/);
   assert.match(html, /\$\("minimap"\)\.addEventListener\("click"/);
   assert.match(map, /k === "m" \|\| k === "escape" \|\| k === "backspace"/);
   assert.match(map, /id="wmBack"/);

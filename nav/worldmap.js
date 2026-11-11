@@ -589,7 +589,8 @@ export function createWorldMap(ctx) {
   let cardBoss = null;
   function showBossCard(b, sx, sy) {
     cardBoss = b;
-    $("wmCardK").textContent = `★ ${b.region} boss${b.met ? " · met" : ""}`;
+    $("wmCardK").textContent = b.defeated ? `✓ ${b.region} boss · defeated` : `★ ${b.region} boss${b.met ? " · met" : ""}`;
+    $("wmCardGo").style.display = b.defeated ? "none" : "";
     $("wmCardN").textContent = b.name;
     $("wmCardP").textContent = `${b.types.map((t) => t[0].toUpperCase() + t.slice(1)).join(" / ")} · ${fmtDist(Math.hypot(b.x - car.x, b.z - car.z))} away`;
     const c = $("wmCard");
@@ -667,12 +668,12 @@ export function createWorldMap(ctx) {
     g.fill();
     g.restore();
   }
-  function drawBossIcon(x, y, met, active) {
+  function drawBossIcon(x, y, met, active, beaten) {
     g.save();
     g.translate(x, y);
     const k = view.upp > 14 ? 0.62 : view.upp > 7 ? 0.8 : 1;
     g.scale(k, k);
-    g.fillStyle = active ? RED : met ? "#b9a7e3" : GOLD;
+    g.fillStyle = beaten ? "#c9c4bd" : active ? RED : met ? "#b9a7e3" : GOLD;
     g.strokeStyle = INK;
     g.lineWidth = 2;
     g.beginPath();
@@ -777,7 +778,13 @@ export function createWorldMap(ctx) {
       if (b.status !== "ready") continue;
       const [sx, sy] = toScreen(b.x, b.z);
       if (sx < -20 || sy < -20 || sx > W + 20 || sy > H + 20) continue;
-      drawBossIcon(sx, sy, b.met, route.boss === b.rid);
+      drawBossIcon(sx, sy, b.met, route.boss === b.rid, b.defeated);
+      if (b.defeated) {
+        g.fillStyle = INK;
+        g.font = `700 14px "DM Sans",sans-serif`;
+        g.fillText("✓", sx + 11, sy - 11);
+        g.font = `700 10px "DM Sans",sans-serif`;
+      }
       if (view.upp < 16) {
         g.lineWidth = 3;
         g.strokeStyle = PAPER;
@@ -830,7 +837,7 @@ export function createWorldMap(ctx) {
       .slice(0, 24)
       .map(
         (b) =>
-          `<li data-rid="${b.rid}"><i>★</i><div>${b.name}${b.met ? " ✓" : ""}<small>${b.region}</small></div><em>${fmtDist(b.d)}</em></li>`,
+          `<li data-rid="${b.rid}"${b.defeated ? ' style="opacity:.5"' : ""}><i>${b.defeated ? "✓" : "★"}</i><div>${b.name}<small>${b.region}${b.defeated ? " · defeated" : ""}</small></div><em>${fmtDist(b.d)}</em></li>`,
       )
       .join("");
   }
