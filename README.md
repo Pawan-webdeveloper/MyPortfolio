@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="icons/icon-192.png" width="96" height="96" alt="Pawan World app icon" />
+  <img src="icons/logo.svg" width="96" height="96" alt="Pawan World logo" />
 </p>
 
 <h1 align="center">Pawan World</h1>
@@ -30,7 +30,7 @@
 
 <p align="center">
   <a href="https://pawan-portfolio-silk-mu.vercel.app/">
-    <img src="docs/screenshots/home.jpg" alt="Pawan World start screen with the portfolio menu" width="100%" />
+    <img src="docs/screenshots/home-v2.jpg" alt="Pawan World start screen with the portfolio menu" width="100%" />
   </a>
 </p>
 
@@ -135,11 +135,11 @@ Press **M** or tap the minimap for a full-screen map. Drop a pin, pick a boss an
 
 | Start menu | Open world |
 | --- | --- |
-| ![Pawan World start menu](docs/screenshots/home.jpg) | ![Exploring the open world](docs/screenshots/world.jpg) |
+| ![Pawan World start menu](docs/screenshots/home-v2.jpg) | ![Exploring the open world](docs/screenshots/world-v2.jpg) |
 
 | World map | Settings and guide |
 | --- | --- |
-| ![World map and boss navigation](docs/screenshots/map.jpg) | ![Settings and controls](docs/screenshots/settings.jpg) |
+| ![World map and boss navigation](docs/screenshots/map.jpg) | ![Settings and controls](docs/screenshots/settings-v2.jpg) |
 
 <p align="center">
   <img src="docs/screenshots/battle.jpg" alt="Mewtwo boss battle in Café Lane" width="100%" />
