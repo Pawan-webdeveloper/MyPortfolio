@@ -125,7 +125,7 @@ home.innerHTML = `
   <div class="h-wrap">
     <header class="h-top">
       <div class="h-brand">
-        <span class="h-ball" aria-hidden="true"></span>
+        <img class="h-ball" src="icons/logo.svg" alt="" aria-hidden="true" />
         <div><h1>${esc(C.profile.name)}</h1><small>${esc(C.profile.role.toUpperCase())} · ID No.${esc(C.profile.trainerId)}</small></div>
       </div>
       <div class="h-tools">

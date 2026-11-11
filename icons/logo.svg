@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="Pawan World logo">
+  <defs>
+    <clipPath id="ballClip">
+      <circle cx="256" cy="256" r="168" />
+    </clipPath>
+    <linearGradient id="redTop" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f4775a" />
+      <stop offset="1" stop-color="#d6452f" />
+    </linearGradient>
+    <radialGradient id="button" cx="35%" cy="30%" r="75%">
+      <stop offset="0" stop-color="#6fe6d6" />
+      <stop offset="1" stop-color="#1f9a8a" />
+    </radialGradient>
+  </defs>
+
+  <circle cx="256" cy="256" r="238" fill="#fbf8ef" stroke="#1f1d2b" stroke-width="14" />
+
+  <g fill="none" stroke-width="22">
+    <path d="M 447.844 170.585 A 210 210 0 0 1 277.951 464.850" stroke="#e4573d" />
+    <path d="M 234.049 464.850 A 210 210 0 0 1 64.156 170.585" stroke="#7a4fc4" />
+    <path d="M 86.106 132.565 A 210 210 0 0 1 425.894 132.565" stroke="#2f7fd1" />
+  </g>
+
+  <circle cx="264" cy="270" r="168" fill="#1f1d2b" opacity=".10" />
+
+  <circle cx="256" cy="256" r="168" fill="#fbf8ef" />
+  <path d="M 70 250 C 120 226, 180 274, 256 250 S 392 226, 442 250 L 442 60 L 70 60 Z" fill="url(#redTop)" clip-path="url(#ballClip)" />
+  <path d="M 70 250 C 120 226, 180 274, 256 250 S 392 226, 442 250" fill="none" stroke="#1f1d2b" stroke-width="34" clip-path="url(#ballClip)" />
+  <path d="M 70 250 C 120 226, 180 274, 256 250 S 392 226, 442 250" fill="none" stroke="#2f7fd1" stroke-width="5" opacity=".55" clip-path="url(#ballClip)" />
+
+  <circle cx="256" cy="256" r="168" fill="none" stroke="#1f1d2b" stroke-width="16" />
+
+  <path d="M 145 205 C 170 145, 215 112, 275 104" fill="none" stroke="#ffffff" stroke-width="20" stroke-linecap="round" opacity=".30" clip-path="url(#ballClip)" />
+
+  <circle cx="256" cy="256" r="64" fill="#fbf8ef" stroke="#1f1d2b" stroke-width="14" />
+  <circle cx="256" cy="256" r="42" fill="url(#button)" stroke="#1f1d2b" stroke-width="10" />
+  <ellipse cx="242" cy="241" rx="14" ry="9" fill="#ffffff" opacity=".80" transform="rotate(-28 242 241)" />
+</svg>

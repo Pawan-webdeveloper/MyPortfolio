@@ -1,6 +1,6 @@
 // Pawan World — offline cache. HTML and the home-screen code are network-first (so updates arrive),
 // wild/ (Pokémon code + dex) and nav/ (map) too; everything else (models, decoder, icons, CDN) cache-first.
-const CACHE = "pawan-world-v3";
+const CACHE = "pawan-world-v4";
 const CORE = ["./", "index.html", "manifest.webmanifest", "icons/icon-192.png", "icons/icon-512.png",
   "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js"];
 self.addEventListener("install", (e) => {

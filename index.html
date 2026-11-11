@@ -7,8 +7,11 @@
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <link rel="manifest" href="manifest.webmanifest" />
-    <link rel="icon" type="image/png" href="icons/icon-192.png" />
-    <link rel="apple-touch-icon" href="icons/icon-192.png" />
+    <link rel="icon" href="icons/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/svg+xml" href="icons/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png" />
     <title>Pawan World — Pokémon Fan Game & Developer Portfolio · Pawan Sah</title>
     <meta name="description" content="Pawan World is an open-world Pokémon fan game and interactive developer portfolio. Explore a hand-painted watercolour world with Charizard, Gengar and Greninja, meet 164 wild Pokémon and battle legendary bosses — built with three.js." />
     <meta property="og:type" content="website" />
@@ -134,21 +137,9 @@
       #logo {
         width: 34px;
         height: 34px;
-        border-radius: 50%;
-        background: var(--gold);
-        border: 1.5px solid var(--ink);
-        position: relative;
-        box-shadow: 1.5px 1.5px 0 var(--ink);
-      }
-      #logo:after {
-        content: "";
-        position: absolute;
-        left: 9px;
-        top: 9px;
-        width: 12px;
-        height: 12px;
-        border-left: 3.5px solid var(--red);
-        border-top: 3.5px solid var(--red);
+        flex: none;
+        display: block;
+        filter: drop-shadow(1.5px 1.5px 0 var(--ink));
       }
       #brand h1 {
         font-family: "Caveat Brush", cursive;
@@ -794,7 +785,7 @@
     <canvas id="c"></canvas>
     <div id="ui">
       <div id="brand">
-        <div id="logo"></div>
+        <img id="logo" src="icons/logo.svg" alt="" />
         <div>
           <h1>Pawan World</h1>
           <small>ポケモンの世界 · WATERCOLOUR WORLD</small>
