@@ -6,7 +6,7 @@
 
 <p align="center">
   <strong>An open-world Pokémon fan game — and an interactive developer portfolio.</strong><br />
-  Ride Charizard, drive Gengar's jeep and glide as Greninja through a hand-painted watercolour world.
+  Ride Charizard, drive Gengar's jeep and glide as Greninja through a hand-painted watercolour world — and battle a legendary boss in every region.
 </p>
 
 <p align="center">
@@ -56,9 +56,9 @@ It is a personal project, a Pokémon tribute, and a playground for WebGL, proced
 
 ### At a glance
 
-- **32 regions**, **164 wild Pokémon** from generations 1–7, and **32 legendary bosses** — one per region.
+- **32 regions**, **164 wild Pokémon** from generations 1–7, and **32 legendary bosses** — one per region, each with its own signature arena fight.
 - **Three playable Pokémon**, each with a different way to move: Charizard flies, Gengar drives, Greninja runs, glides and crosses deep water.
-- **Real Pokémon-style battles**: four moves per Pokémon, type effectiveness, STAB, crits, telegraphed attacks, dodging and hard-mode boss AI.
+- **Legendary boss battles**: 32 arenas, a three-Pokémon team, four real moves each, type effectiveness, STAB, crits, telegraphed attacks, dodge rolls and hard-mode boss AI.
 - **100% client-side** — no backend, no account, no tracking.
 - **Installable PWA** with an offline cache and mobile touch controls.
 - **32 automated tests** covering the roster, battle math, world-map routing and the Greninja glide state machine.
@@ -102,13 +102,24 @@ Press **E** to switch between riding and walking, and **Switch** to cycle Pokém
 - First sightings fill the Pokédex, saved in `localStorage`.
 - Models are baked, simplified, texture-compressed and Draco-compressed, then drawn with GPU instancing. Legs, wings and hops are animated in the vertex shader, so 164 species stay light on performance.
 
-### Legendary boss battles
+### 32 legendary boss battles
 
-- Every region has one legendary boss with a fixed lair, a gold ring, a minimap marker and a tracker chip.
-- Walk up and press **E** to open a Challenge card, then fight with your three Pokémon against the boss.
-- Each Pokémon has four real moves with types, powers and cooldowns; the boss uses a signature move plus three moves of its types.
-- Every attack is telegraphed in red on the ground. Roll with **Space** to dodge through attacks, switch party members with **Q / Tab**, and use the type chart to resist the boss's moves.
-- Bosses sidestep attacks they see coming, chain attacks, and enrage below half health. Win and the boss leaves for good; lose and your team is healed for another try.
+Every one of the 32 regions is guarded by its own legendary — **Mewtwo** in Café Lane, **Lugia** off Salt Shore, **Kyogre** in Teal Lake, **Rayquaza** on Cloud Summit, **Giratina** in Mist Pass, **Groudon** on Switchback Ridge, **Kyurem** on Silver Peaks, **Ho-Oh** over Rainbow Fields, **Darkrai** in Marmalade Mews, **Yveltal** in Nightwood Forest, **Xerneas** on Ribbon Row, plus **Solgaleo**, **Zekrom**, **Tapu Lele**, **Tapu Bulu** and more.
+
+- **Find the lair:** each boss waits at a fixed spot marked by a gold ring and a star, with a tracker chip at the top and a Poké Ball on the minimap pointing the way.
+- **Challenge:** walk up on foot and press **E** to open the Challenge card, then a VS loading screen takes you into the boss's arena.
+- **Fight with your team:** Charizard, Gengar and Greninja fight together, each with four real moves and types:
+
+| Pokémon | Types | Moves |
+| --- | --- | --- |
+| Charizard | Fire / Flying | Flamethrower · Air Slash · Dragon Claw · Fire Blast |
+| Gengar | Ghost / Poison | Shadow Ball · Sludge Bomb · Thunderbolt · Shadow Claw |
+| Greninja | Water / Dark | Water Shuriken · Night Slash · Hydro Pump · Dark Pulse |
+
+- **Read the floor:** every boss attack is telegraphed in red — arcs, rings, charge lanes, beam lines and falling circles — and the boss's body glows in the move's colour while it charges.
+- **Dodge and switch:** roll with **Space** (invincible for the first part of the roll), switch with **Q / Tab** to resist the boss's type, and let Pokémon on the bench recover HP.
+- **Hard mode only:** three or four clean hits knock out one of your Pokémon. Bosses sidestep attacks they see coming, chain moves, and enrage below half health with faster windups and more shots.
+- **Win or lose:** beat the boss and it leaves its lair for good, saved in `localStorage`; lose and your team is healed so you can try again or walk away.
 
 ### World map and navigation
 
@@ -131,9 +142,9 @@ Press **M** or tap the minimap for a full-screen map. Drop a pin, pick a boss an
 | ![World map and boss navigation](docs/screenshots/map.jpg) | ![Settings and controls](docs/screenshots/settings.jpg) |
 
 <p align="center">
-  <img src="docs/screenshots/team.jpg" alt="Projects displayed as a Pokémon party" width="100%" />
+  <img src="docs/screenshots/battle.jpg" alt="Mewtwo boss battle in Café Lane" width="100%" />
   <br />
-  <em>TEAM — projects as a Pokémon party, with a PC box for smaller projects.</em>
+  <em>Mewtwo appears in Café Lane — one of the 32 legendary boss fights in the game.</em>
 </p>
 
 ## Controls
