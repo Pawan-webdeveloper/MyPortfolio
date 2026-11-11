@@ -18,6 +18,7 @@
 // flight, squash & stretch) is procedural. Species load on demand and unload when unused.
 import * as THREE from "three";
 import { REGIONS, GAIT, SINK, TIMID, CURIOUS, FACE, WINGS, LEGS } from "./roster.js";
+import { loadDefeated, saveDefeated } from "./combat.js";
 
 const HOP = new Set(GAIT.hop),
   WADDLE = new Set(GAIT.waddle),
@@ -622,6 +623,7 @@ export async function createWild(ctx) {
     }
   })();
   const lairQueue = new Set();
+  const defeated = loadDefeated(); // lair ids whose boss you beat (wild/battle.js) — they never come back
   function lairFor(r) {
     let L = lairs.get(r.id);
     if (L) return L;
@@ -773,6 +775,7 @@ export async function createWild(ctx) {
   }
 
   function steer(m, sp, dt, d2, dx, dz) {
+    if (m.inBattle) return; // battle.js drives the boss
     const spd = (1.3 + sp.h * 0.45) * (m.gait === "slither" ? 0.8 : 1) * (m.kind === "boss" ? 0.5 : 1);
     const d = Math.sqrt(d2);
     // headings (forward is −Z, so heading h moves along (−sin h, −cos h)); dx/dz point at the player
@@ -984,6 +987,7 @@ export async function createWild(ctx) {
   /* ---------- reactions ---------- */
   function react(m, speed) {
     if (m.kind === "boss") {
+      if (m.inBattle) return;
       emote(m, "!", 1.2);
       fx.cry(m.sp.h, true);
       fx.shake(0.25);
@@ -1031,7 +1035,7 @@ export async function createWild(ctx) {
       const L = lairFor(r);
       if (L.status === "search") lairQueue.add(L);
       if (L.status === "none") return { status: "none" };
-      return { status: L.status, id: L.id, name: dex[L.id].name, types: dex[L.id].types, region: L.region, rid: L.rid, x: L.x, z: L.z, met: bossesMet.has(L.rid) };
+      return { status: L.status, defeated: defeated.has(L.rid), id: L.id, name: dex[L.id].name, types: dex[L.id].types, region: L.region, rid: L.rid, x: L.x, z: L.z, met: bossesMet.has(L.rid) };
     },
     /** spend `budget` candidate checks on queued lair searches; returns how many are still pending */
     pumpLairs(budget = 300) {
@@ -1047,6 +1051,37 @@ export async function createWild(ctx) {
       return curLair && curLair.status === "ready"
         ? { id: curLair.id, name: dex[curLair.id].name, region: curLair.region, x: curLair.x, z: curLair.z, met: bossesMet.has(curLair.rid) }
         : null;
+    },
+    /** the live boss mon of the current region (null while it's loading or no lair here) */
+    get bossMon() {
+      return curLair && curLair.status === "ready" && !defeated.has(curLair.rid) ? curLair.mon : null;
+    },
+    /** a species ready to draw (loads it if needed) */
+    species(id) {
+      return new Promise((res, rej) => {
+        const t0 = performance.now();
+        const poll = () => {
+          const s = want(id);
+          if (s) return res(s.sp);
+          if (species.get(id)?.state === "failed" || performance.now() - t0 > 15000) return rej(new Error(`#${id} didn't load`));
+          setTimeout(poll, 60);
+        };
+        poll();
+      });
+    },
+    isDefeated: (rid) => defeated.has(rid),
+    get defeatedCount() {
+      return defeated.size;
+    },
+    /** you beat this lair's boss: it leaves the world for good */
+    defeatBoss(rid) {
+      defeated.add(rid);
+      saveDefeated(defeated);
+      const L = lairs.get(rid);
+      if (L && L.mon) {
+        fx.burst(tmp.set(L.mon.x, L.mon.y + L.mon.sp.h * 0.5, L.mon.z), "#f2c230", 30);
+        despawnBoss(L);
+      }
     },
 
     update(dt, t) {
@@ -1072,7 +1107,10 @@ export async function createWild(ctx) {
       }
       if (curLair && curLair.status === "search") searchLair(curLair, 260);
       for (const L of lairs.values()) {
-        if (L.status !== "ready") continue;
+        if (L.status !== "ready" || defeated.has(L.rid)) {
+          if (L.mon) despawnBoss(L);
+          continue;
+        }
         const d = Math.hypot(L.x - car.x, L.z - car.z);
         if (!L.mon && d < VIEW + 60) spawnBoss(L);
         else if (L.mon && d > VIEW + 160) despawnBoss(L);
@@ -1242,7 +1280,7 @@ export async function createWild(ctx) {
                 fx.cry(m.sp.h, true);
                 fx.shake(0.35);
                 emote(m, "!", 2);
-                queueTip(`★ ${m.region} boss`, m.e.name, `${typeLine(m.e)} · the strongest Pokémon here. Battles are coming soon.`, 5200);
+                queueTip(`★ ${m.region} boss`, m.e.name, `${typeLine(m.e)} · the strongest Pokémon here. Walk up and press E to challenge it!`, 5200);
               }
             } else if (d < (m.kind === "flock" ? 60 : 28) && !seen.has(m.id)) {
               seen.add(m.id);
@@ -1261,7 +1299,7 @@ export async function createWild(ctx) {
       // boss tracker chip
       const B = api.boss,
         el = $w("wBoss");
-      if (B && game.started && !bossesMet.has(curLair.rid)) {
+      if (B && game.started && !bossesMet.has(curLair.rid) && !defeated.has(curLair.rid)) {
         const dx = B.x - car.x,
           dz = B.z - car.z,
           d = Math.hypot(dx, dz);
@@ -1360,7 +1398,7 @@ export async function createWild(ctx) {
         emote(m, "!", 1.6);
         fx.cry(m.sp.h, true);
         fx.shake(0.4);
-        fx.tip(`★ ${m.region} boss`, m.e.name, `${typeLine(m.e)} · ${m.e.height} m · It sizes you up… battles are coming soon.`, 4600);
+        fx.tip(`★ ${m.region} boss`, m.e.name, `${typeLine(m.e)} · ${m.e.height} m · Press E next to it to challenge it!`, 4600);
         return;
       }
       m.jv = 6;

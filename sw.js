@@ -14,7 +14,7 @@ self.addEventListener("fetch", (e) => {
   if (req.method !== "GET") return;
   const isPage = req.mode === "navigate" || req.destination === "document";
   const url = new URL(req.url);
-  const isHomeCode = url.origin === self.location.origin && /\/(home\/[^/]+|hero\.js|wild\/[^/]+|nav\/[^/]+)$/.test(url.pathname);
+  const isHomeCode = url.origin === self.location.origin && /\/(home\/[^/]+|hero\.js|wild\/[^/]+|nav\/[^/]+|ui\/[^/]+)$/.test(url.pathname);
   if (isPage || isHomeCode) {
     e.respondWith(fetch(req).then((r) => { const copy = r.clone(); caches.open(CACHE).then((c) => c.put(req, copy)); return r; })
       .catch(() => caches.match(req).then((r) => r || (isPage ? caches.match("index.html") : Response.error()))));
