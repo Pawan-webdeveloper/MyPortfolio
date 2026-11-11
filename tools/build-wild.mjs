@@ -16,14 +16,14 @@
 //   5. geometry is Draco-compressed
 // The roster is checked against PokéAPI types first, so a misplaced species fails the build.
 //
-// Uses the glTF tooling already installed in ../my-game/node_modules.
+// Requires the optional build dependencies in tools/package.json (npm install --prefix tools).
 import { createRequire } from "node:module";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { REGIONS, BIOME_TYPES, allSpecies } from "../wild/roster.js";
 
-const require = createRequire(new URL("../../my-game/package.json", import.meta.url));
+const require = createRequire(new URL("./package.json", import.meta.url));
 const { NodeIO, getBounds } = require("@gltf-transform/core");
 const { ALL_EXTENSIONS } = require("@gltf-transform/extensions");
 const { prune, dedup, weld, join, simplify, textureCompress, draco, flatten } = require("@gltf-transform/functions");

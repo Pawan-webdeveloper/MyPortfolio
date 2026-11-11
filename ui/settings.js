@@ -7,7 +7,7 @@
 import { PARTY, TYPE_COLORS } from "../wild/combat.js";
 
 const INK = "#1f1d2b",
-  PAPER = "#fbf8ef",
+  CANVAS = "#fbf8ef",
   RED = "#d6452f",
   GOLD = "#f2c230";
 
@@ -19,17 +19,17 @@ export function createSettings(ctx) {
   root.innerHTML = `<style>
     #pwSettings{position:fixed;inset:0;z-index:70;display:none;background:rgba(31,29,43,.42);font-family:"DM Sans",system-ui,sans-serif;color:${INK}}
     #pwSettings.open{display:flex;align-items:center;justify-content:center}
-    #pwSettings .sheet{position:relative;width:min(760px,calc(100vw - 24px));height:min(560px,calc(100vh - 24px));background:${PAPER};border:1.5px solid ${INK};
+    #pwSettings .sheet{position:relative;width:min(760px,calc(100vw - 24px));height:min(560px,calc(100vh - 24px));background:${CANVAS};border:1.5px solid ${INK};
       box-shadow:4px 4px 0 ${INK};display:flex;flex-direction:column}
     #pwSettings header{display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1.5px solid ${INK}}
     #pwSettings header h2{margin:0;font-family:"Caveat Brush",cursive;font-weight:400;font-size:30px;line-height:1}
-    #pwSettings .btn{font:700 11px "DM Sans",system-ui;letter-spacing:.14em;text-transform:uppercase;background:${PAPER};color:${INK};border:1.5px solid ${INK};
+    #pwSettings .btn{font:700 11px "DM Sans",system-ui;letter-spacing:.14em;text-transform:uppercase;background:${CANVAS};color:${INK};border:1.5px solid ${INK};
       box-shadow:2px 2px 0 ${INK};padding:8px 12px;cursor:pointer}
     #pwSettings .btn:active{transform:translate(1px,1px);box-shadow:1px 1px 0 ${INK}}
-    #pwSettings .btn.red{background:${RED};color:${PAPER}}#pwSettings .btn.gold{background:${GOLD}}#pwSettings .btn.on{background:${INK};color:${PAPER}}
+    #pwSettings .btn.red{background:${RED};color:${CANVAS}}#pwSettings .btn.gold{background:${GOLD}}#pwSettings .btn.on{background:${INK};color:${CANVAS}}
     #pwSettings nav{display:flex;gap:0;margin-left:auto}
-    #pwSettings nav button{font:700 10px "DM Sans";letter-spacing:.16em;text-transform:uppercase;padding:8px 12px;border:1.5px solid ${INK};background:${PAPER};cursor:pointer;margin-left:-1.5px}
-    #pwSettings nav button.on{background:${INK};color:${PAPER}}
+    #pwSettings nav button{font:700 10px "DM Sans";letter-spacing:.16em;text-transform:uppercase;padding:8px 12px;border:1.5px solid ${INK};background:${CANVAS};cursor:pointer;margin-left:-1.5px}
+    #pwSettings nav button.on{background:${INK};color:${CANVAS}}
     #pwSettings .body{flex:1;overflow:auto;padding:14px 16px;-webkit-overflow-scrolling:touch}
     #pwSettings h3{margin:14px 0 8px;font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:${RED}}
     #pwSettings h3:first-child{margin-top:0}

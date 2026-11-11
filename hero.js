@@ -1,6 +1,6 @@
 // Home-screen player character: Pawan, built by tools/build-hero.mjs (models/hero/pawan.glb).
 // Renders in its own transparent canvas with soft PBR lighting so he reads like a game hero standing
-// in front of the paper world. Idle breathing, blinking, head/eye tracking of the pointer, drag to spin.
+// in front of the world. Idle breathing, blinking, head/eye tracking of the pointer, drag to spin.
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { DRACOLoader } from "three/addons/loaders/DRACOLoader.js";

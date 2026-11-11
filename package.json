@@ -1,0 +1,29 @@
+{
+  "name": "pawan-world",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "description": "An open-world Pokémon fan game and interactive developer portfolio built with three.js.",
+  "homepage": "https://pawan-portfolio-silk-mu.vercel.app/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Pawan-webdeveloper/MyPortfolio.git"
+  },
+  "author": "Pawan Sah (https://github.com/Pawan-webdeveloper)",
+  "license": "MIT",
+  "keywords": [
+    "pokemon",
+    "threejs",
+    "webgl",
+    "game",
+    "gamedev",
+    "portfolio",
+    "fan-game",
+    "pwa",
+    "javascript"
+  ],
+  "scripts": {
+    "start": "python3 -m http.server 8437",
+    "test": "node --test"
+  }
+}

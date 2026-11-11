@@ -13,7 +13,7 @@
 // is re-planned when you stray from it or switch Pokémon. All heavy work is time-sliced per frame.
 import * as THREE from "three";
 
-const PAPER = "#fbf8ef",
+const CANVAS = "#fbf8ef",
   INK = "#1f1d2b",
   RED = "#d6452f",
   GOLD = "#f2c230";
@@ -115,10 +115,10 @@ export function createWorldMap(ctx) {
     #wmap.open{display:block}
     #wmap canvas{position:absolute;inset:0;width:100%;height:100%;cursor:grab}
     #wmap canvas.drag{cursor:grabbing}
-    #wmap .wm-btn{font:700 11px "DM Sans",system-ui;letter-spacing:.14em;text-transform:uppercase;background:${PAPER};color:${INK};
+    #wmap .wm-btn{font:700 11px "DM Sans",system-ui;letter-spacing:.14em;text-transform:uppercase;background:${CANVAS};color:${INK};
       border:1.5px solid ${INK};box-shadow:2px 2px 0 ${INK};padding:9px 14px;cursor:pointer;border-radius:0}
     #wmap .wm-btn:active{transform:translate(1px,1px);box-shadow:1px 1px 0 ${INK}}
-    #wmap .wm-btn.red{background:${RED};color:${PAPER}}
+    #wmap .wm-btn.red{background:${RED};color:${CANVAS}}
     #wmap .wm-btn.gold{background:${GOLD}}
     #wmap .wm-top{position:absolute;left:calc(14px + env(safe-area-inset-left));top:calc(12px + env(safe-area-inset-top));display:flex;gap:12px;align-items:center;right:220px}
     #wmap .wm-where{background:rgba(251,248,239,.92);border:1.5px solid ${INK};padding:5px 12px;line-height:1.15;max-width:46vw}
@@ -141,7 +141,7 @@ export function createWorldMap(ctx) {
     #wmap .wm-bosses li small{display:block;font-size:9px;letter-spacing:.1em;text-transform:uppercase;opacity:.7}
     #wmap .wm-bosses li em{margin-left:auto;font-style:normal;font-size:10px;font-weight:700;white-space:nowrap}
     #wmap .wm-bosses.min ul{display:none}
-    #wmap .wm-card{position:absolute;display:none;transform:translate(-50%,calc(-100% - 22px));background:${PAPER};border:1.5px solid ${INK};
+    #wmap .wm-card{position:absolute;display:none;transform:translate(-50%,calc(-100% - 22px));background:${CANVAS};border:1.5px solid ${INK};
       box-shadow:3px 3px 0 ${INK};padding:9px 12px;min-width:170px;text-align:center}
     #wmap .wm-card.on{display:block}
     #wmap .wm-card .k{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:${RED}}
@@ -662,7 +662,7 @@ export function createWorldMap(ctx) {
     g.bezierCurveTo(9, -24, 9, -12, 0, 0);
     g.fill();
     g.stroke();
-    g.fillStyle = PAPER;
+    g.fillStyle = CANVAS;
     g.beginPath();
     g.arc(0, -16, 3.5, 0, 7);
     g.fill();
@@ -734,7 +734,7 @@ export function createWorldMap(ctx) {
         g.lineWidth = pass ? w : w + 2.5;
         g.stroke();
       }
-    // paper grain + grid every 1 km
+    // canvas grain + grid every 1 km
     g.strokeStyle = "rgba(31,29,43,.08)";
     g.lineWidth = 1;
     const grid = view.upp > 12 ? 5000 : 1000;
@@ -787,7 +787,7 @@ export function createWorldMap(ctx) {
       }
       if (view.upp < 16) {
         g.lineWidth = 3;
-        g.strokeStyle = PAPER;
+        g.strokeStyle = CANVAS;
         g.strokeText(b.name.toUpperCase(), sx, sy + 22);
         g.fillStyle = INK;
         g.fillText(b.name.toUpperCase(), sx, sy + 22);

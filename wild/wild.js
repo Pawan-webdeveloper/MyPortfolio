@@ -5,7 +5,7 @@
 //
 //   wanderers  roam the land, the shallows and the lakes near you (species = the region's roster)
 //   herds      Miltank/Mareep/Deerling/Psyduck… where the world used to paint cows, sheep, deer, ducks
-//   flocks     the region's bird Pokémon fly over in V formations (they replaced the paper birds)
+//   flocks     the region's bird Pokémon fly over in V formations (they replaced the old bird flocks)
 //   bosses     one unique Pokémon per region, waiting at a fixed lair; a tracker shows the way
 //
 // They are solid: cars and Greninja bump into them (small ones get shoved, bosses don't budge),

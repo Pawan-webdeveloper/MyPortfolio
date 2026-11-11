@@ -9,8 +9,18 @@
     <link rel="manifest" href="manifest.webmanifest" />
     <link rel="icon" type="image/png" href="icons/icon-192.png" />
     <link rel="apple-touch-icon" href="icons/icon-192.png" />
-    <title>Pawan Sah · Full-Stack Developer — Pawan World</title>
-    <meta name="description" content="Pawan Sah, full-stack developer. A Pokémon-style portfolio: projects (ScanlyFix, Bennet AI, ThirdEye), experience, skills, contact, and a playable 3D world." />
+    <title>Pawan World — Pokémon Fan Game & Developer Portfolio · Pawan Sah</title>
+    <meta name="description" content="Pawan World is an open-world Pokémon fan game and interactive developer portfolio. Explore a hand-painted watercolour world with Charizard, Gengar and Greninja, meet 164 wild Pokémon and battle legendary bosses — built with three.js." />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Pawan World" />
+    <meta property="og:title" content="Pawan World — Pokémon Fan Game & Developer Portfolio" />
+    <meta property="og:description" content="Explore a hand-painted 3D world with Charizard, Gengar and Greninja, meet 164 wild Pokémon, battle legendary bosses and explore Pawan Sah's developer portfolio." />
+    <meta property="og:url" content="https://pawan-portfolio-silk-mu.vercel.app/" />
+    <meta property="og:image" content="https://pawan-portfolio-silk-mu.vercel.app/docs/screenshots/home.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Pawan World — Pokémon Fan Game & Developer Portfolio" />
+    <meta name="twitter:description" content="Explore a hand-painted 3D world with Charizard, Gengar and Greninja, meet 164 wild Pokémon and battle legendary bosses." />
+    <meta name="twitter:image" content="https://pawan-portfolio-silk-mu.vercel.app/docs/screenshots/home.jpg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -21,8 +31,8 @@
     <link rel="stylesheet" href="home/home.css" />
     <style>
       :root {
-        --paper: #f4efe2;
-        --paper2: #fbf8ef;
+        --canvas: #f4efe2;
+        --canvas2: #fbf8ef;
         --ink: #1f1d2b;
         --red: #d6452f;
         --teal: #1f9a8a;
@@ -37,7 +47,7 @@
       body {
         height: 100%;
         overflow: hidden;
-        background: var(--paper);
+        background: var(--canvas);
         color: var(--ink);
         font-family: "DM Sans", system-ui, sans-serif;
       }
@@ -69,7 +79,7 @@
         text-transform: uppercase;
         padding: 8px 10px;
         border: 1.5px solid var(--ink);
-        background: var(--paper2);
+        background: var(--canvas2);
         color: var(--ink);
         border-radius: 3px;
         box-shadow: 1.5px 1.5px 0 var(--ink);
@@ -89,10 +99,10 @@
       }
       .btn.on {
         background: var(--ink);
-        color: var(--paper2);
+        color: var(--canvas2);
       }
       .card {
-        background: var(--paper2);
+        background: var(--canvas2);
         border: 1.5px solid var(--ink);
         border-radius: 4px;
         box-shadow: 3px 3px 0 rgba(31, 29, 43, 0.85);
@@ -667,7 +677,7 @@
         border-radius: 50%;
         border: 1.5px solid var(--ink);
         box-shadow: 2px 2px 0 var(--ink);
-        background: var(--paper2);
+        background: var(--canvas2);
       }
       .studio #minimap {
         opacity: 0;
@@ -734,7 +744,7 @@
       .tb span.t{display:block;font-size:8.5px;letter-spacing:.06em;line-height:1.1}
       .tb span:not(.t)+span.t{margin-top:-2px}
       #tq{position:absolute;left:calc(14px + env(safe-area-inset-left));top:112px;width:58px;height:58px;font-size:8px;pointer-events:auto}
-      #rotate{display:none;position:fixed;inset:0;z-index:9;background:var(--paper);align-items:center;justify-content:center;flex-direction:column;gap:10px;
+      #rotate{display:none;position:fixed;inset:0;z-index:9;background:var(--canvas);align-items:center;justify-content:center;flex-direction:column;gap:10px;
         font:700 12px 'DM Sans';letter-spacing:.2em;text-transform:uppercase;text-align:center;padding:30px}
       #rotate b{font-family:'Caveat Brush',cursive;font-size:44px;letter-spacing:0;text-transform:none;font-weight:400}
       @media (orientation:portrait){body.touch #rotate{display:flex}}
@@ -787,7 +797,7 @@
         <div id="logo"></div>
         <div>
           <h1>Pawan World</h1>
-          <small>折り目の道 · INK &amp; WASH ROADS</small>
+          <small>ポケモンの世界 · WATERCOLOUR WORLD</small>
         </div>
       </div>
       <div id="timebar">
@@ -812,12 +822,13 @@
 
       <div id="intro" class="card pe">
         <div class="tiny kick">06 / A watercolour world with no edges</div>
-        <h2>Paint the road.<em>Then leave it.</em></h2>
+        <h2>Ride out.<em>Catch the horizon.</em></h2>
         <p>
-          Explore with Gengar, Charizard and Greninja in a folded-paper world
-          that never ends: towns stitched together by painted roads, patchwork
-          fields, ink forests, lakes and paper mountains. Every road is sheet
-          music: steer through the floating notes to play its melody.
+          Explore a hand-painted watercolour world with Gengar, Charizard and
+          Greninja: towns stitched together by painted roads, patchwork fields,
+          deep forests, lakes and painted mountains. Every road is sheet music —
+          steer through the floating notes to play its melody — and every region
+          hides wild Pokémon and a legendary boss.
         </p>
         <label
           ><input type="checkbox" id="radioOn" checked /> Start with the radio
@@ -852,7 +863,7 @@
         <div class="row">
           <div id="freq"><b>88.3</b><span>MHZ</span></div>
           <div style="flex: 1; min-width: 0">
-            <div id="station">PAPER MOON FM</div>
+            <div id="station">PAWAN FM</div>
             <div id="trk">TRACK 01 / 08</div>
             <div id="songname">—</div>
             <div id="prog"><i></i></div>
@@ -892,7 +903,7 @@
       </div>
 
       <div id="help" class="card pe">
-        <h3>How to drive a folded road</h3>
+        <h3>How to drive a painted road</h3>
         <table>
           <tr>
             <td>W / S · ↑ ↓</td>
@@ -955,7 +966,7 @@
       </div>
 
       <canvas id="minimap" class="hud" width="300" height="300"></canvas>
-      <div id="loading">folding the world…</div>
+      <div id="loading">painting the world…</div>
       <div id="hint" class="card"></div>
       <div id="toast" class="card"></div>
       <div id="touch">
@@ -1143,7 +1154,7 @@
         return mesh;
       }
 
-      /* Pokémon models (rigged GLBs from my-game) */
+      /* Pokémon models (rigged GLBs) */
       const gltfLoader = new GLTFLoader().setDRACOLoader(
         new DRACOLoader().setDecoderPath("vendor/draco/"),
       );
@@ -1213,7 +1224,7 @@
       ]);
       /* =========================================================
    WORLD — endless watercolour terrain: hills, lakes, towns,
-   patchwork fields, ink forests and paper mountains, all
+   patchwork fields, deep forests and painted mountains, all
    stitched together by painted roads (sheet music).
    ========================================================= */
       const CH = 384,
@@ -2964,7 +2975,7 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
         "Vineyard",
         "Chess garden",
         "Rainbow",
-        "Paper elephant",
+        "Ivory elephant",
         "Log cabin",
         "Fairy ring",
         "Ancient tree",
@@ -3440,7 +3451,7 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
         if (rand() < 0.5) record(c, x, y + 26.5, z);
       }
       function crane(x, y, z, a, s, col) {
-        // origami crane sculpture
+        // crane sculpture
         B.rock.add(
           MWq(x, y + 2 * s, z, 1.1 * s, 0.9 * s, 2.3 * s, 0, a, 0),
           col,
@@ -5275,7 +5286,7 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
         });
       }
       function elephant(c, x, y, z, a) {
-        poi("Paper elephant", x, z);
+        poi("Ivory elephant", x, z);
         const s = RR(1.6, 2.4),
           col = pick(["#cfc8f0", "#b9d4f3", "#f6c9c2", "#fbf8ef", "#c9e7d6"]);
         B.rock.add(
@@ -6046,7 +6057,7 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
       const lanternMats = ["#fbf6ea", "#f7efe0", "#fde2b5"].map((c) => toon(c));
       let lanterns = [];
 
-      /* paper planes circling near the rover */
+      /* gliders circling near the rover */
       const planeGeo = new THREE.BufferGeometry();
       planeGeo.setAttribute(
         "position",
@@ -6786,7 +6797,7 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
         }
         burstGeo.attributes.color.needsUpdate = true;
       }
-      /* ambient drifting paper scraps */
+      /* ambient drifting confetti */
       const CN = 420,
         cGeo = new THREE.BufferGeometry(),
         cOff = new Float32Array(CN * 3),
@@ -6847,7 +6858,7 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
       scene.add(rainMesh);
 
       /* =========================================================
-   AUDIO — Paper Moon FM (fully generative) + note chimes
+   AUDIO — Pawan FM (fully generative) + note chimes
    ========================================================= */
       const A = {
         ctx: null,
@@ -6861,7 +6872,7 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
       };
       const SONGS = [
         {
-          n: "Paper Moon Over Café Lane",
+          n: "Moon Over Café Lane",
           root: 60,
           bpm: 84,
           prog: [
@@ -6916,7 +6927,7 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
           ],
         },
         {
-          n: "Sea of Paper",
+          n: "Sea of Glass",
           root: 59,
           bpm: 80,
           prog: [
@@ -6938,7 +6949,7 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
           ],
         },
         {
-          n: "Fold Along the Dotted Line",
+          n: "Along the Dotted Line",
           root: 61,
           bpm: 90,
           prog: [
@@ -6949,7 +6960,7 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
           ],
         },
         {
-          n: "Clash of Paper",
+          n: "Clash of Colours",
           root: 57,
           bpm: 126,
           prog: [
@@ -7333,7 +7344,7 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
       }
 
       /* =========================================================
-   POST — ink edges, watercolour wobble, paper grain, torn border
+   POST — ink edges, watercolour wobble, canvas grain, torn border
    ========================================================= */
       let rt;
       function makeRT() {
@@ -7361,12 +7372,12 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
           uPR: { value: PR },
           uSpeed: { value: 0 },
           uFade: { value: 0 },
-          uPaper: { value: new THREE.Vector3(0.957, 0.937, 0.886) },
+          uCanvas: { value: new THREE.Vector3(0.957, 0.937, 0.886) },
           uInk: { value: new THREE.Vector3(0.12, 0.11, 0.17) },
           uNight: { value: 0 },
         },
         vertexShader: `varying vec2 vUv;void main(){vUv=uv;gl_Position=vec4(position.xy,0.,1.);}`,
-        fragmentShader: `uniform sampler2D tColor,tDepth;uniform vec2 uRes;uniform float uNear,uFar,uTime,uPR,uSpeed,uFade,uNight;uniform vec3 uPaper,uInk;varying vec2 vUv;${NOISE}
+        fragmentShader: `uniform sampler2D tColor,tDepth;uniform vec2 uRes;uniform float uNear,uFar,uTime,uPR,uSpeed,uFade,uNight;uniform vec3 uCanvas,uInk;varying vec2 vUv;${NOISE}
   float invD(vec2 uv){float z=texture2D(tDepth,uv).r;return (uFar-z*(uFar-uNear))/(uNear*uFar);}
   void main(){
     vec2 frag=vUv*uRes, px=1./uRes;
@@ -7383,7 +7394,7 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
     float dist=1./max(i0,1e-6);
     float edge=smoothstep(.06,.22,lap)*(1.-smoothstep(500.,1500.,dist));
     col=mix(col,uInk,edge*.85);
-    // pigment + paper grain
+    // pigment + canvas grain
     vec2 fp=frag/uPR;
     float g=fbm(fp*.09),big=fbm(fp*.0035+2.);
     col*=.935+.065*g;
@@ -7395,16 +7406,16 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
     // speed streaks
     if(uSpeed>0.){vec2 c=(vUv-.5)*vec2(uRes.x/uRes.y,1.);float r=length(c),a=atan(c.y,c.x);
       float s=smoothstep(.72,.95,noise(vec2(a*38.,uTime*9.)))*smoothstep(.22,.62,r);col=mix(col,vec3(1.,.98,.75),s*uSpeed*.7);}
-    // torn paper frame
+    // torn frame
     vec2 sz=uRes/uPR;
     float e=min(min(fp.x,fp.y),min(sz.x-fp.x,sz.y-fp.y));
     float along=fp.x+fp.y*1.37;
     float rag=24.+16.*fbm(vec2(along*.011,.5))+5.*noise(vec2(along*.16,2.));
     float m=smoothstep(rag,rag+9.,e);
     col*=1.-.13*(1.-smoothstep(rag+2.,rag+24.,e))*m;
-    vec3 paper=uPaper*(.965+.035*g);
-    col=mix(paper,col,m);
-    col=mix(col,paper,uFade);
+    vec3 canvas=uCanvas*(.965+.035*g);
+    col=mix(canvas,col,m);
+    col=mix(col,canvas,uFade);
     gl_FragColor=vec4(col,1.);
   }`,
         depthTest: false,
@@ -7785,7 +7796,7 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
           ["Windmill Plains", "風車の平原", "The wind keeps the tempo"],
         ],
         forest: [
-          ["Inkwood Forest", "墨の森", "Trees drawn in one brushstroke"],
+          ["Nightwood Forest", "夜の森", "Trees drawn in one brushstroke"],
           ["Cedar Hush", "杉の静けさ", "Turn the radio down a little"],
           [
             "Pinecone Hollow",
@@ -7806,10 +7817,10 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
           ["Hanami Lane", "花見小路", "Stop for a picnic"],
         ],
         mountain: [
-          ["Paper Peaks", "紙の峰", "Folded sharp, dusted white"],
-          ["Folded Ridge", "折り尾根", "The road cuts a crease through"],
-          ["Crane Summit", "鶴の頂", "A thousand folds high"],
-          ["Origami Pass", "折り紙峠", "Hold the line through the valley"],
+          ["Silver Peaks", "銀の峰", "Sharp and dusted white"],
+          ["Switchback Ridge", "つづら折りの尾根", "The road cuts across the ridge"],
+          ["Cloud Summit", "雲の頂", "Above the clouds"],
+          ["Mist Pass", "霧の峠", "Hold the line through the valley"],
         ],
         lake: [
           ["Teal Lake", "青緑の湖", "The paint is still wet"],
@@ -9228,7 +9239,7 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
         toast("Back on dry land");
       }
 
-      /* ---- hot-air balloons + paper zeppelins ---- */
+      /* ---- hot-air balloons + painted zeppelins ---- */
       const stripeTex = (a, b) =>
         canvasTex(
           256,
@@ -9333,7 +9344,7 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
       balloons.forEach((b) => b.g.scale.setScalar(b.zep ? 1.3 : 1.75));
       const birdMat = toon("#fbf8ef", { side: THREE.DoubleSide }),
         flocks = [];
-      for (let k = 0; k < 0; k++) { // paper birds replaced by flocks of bird Pokémon (wild/wild.js)
+      for (let k = 0; k < 0; k++) { // old bird flocks replaced by flocks of bird Pokémon (wild/wild.js)
         const g = new THREE.Group();
         for (let i = 0; i < 7; i++) {
           const b = outlined(new THREE.Mesh(planeGeo, birdMat), 0.03);
@@ -9392,7 +9403,7 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
         ],
         RANGE_TINT = new THREE.Color("#8f86b8");
 
-      /* ---- fly: paper plane (F) or eagle (G) ---- */
+      /* ---- fly: glider (F) or eagle (G) ---- */
       const glider = {
         on: false,
         kind: "plane",
@@ -10567,7 +10578,7 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
           }
         tufts.instanceMatrix.needsUpdate = true;
       }
-      /* ---- origami sky whales + night fireflies ---- */
+      /* ---- sky whales + night fireflies ---- */
       function discover(name) {
         if (discovered.has(name)) return;
         discovered.add(name);
@@ -11460,12 +11471,12 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
               45,
               "✿ Open world",
               "Leave the road anytime",
-              "Fields, forests and paper mountains go on forever — the minimap shows notes nearby",
+              "Fields, forests and painted mountains go on forever — the minimap shows notes nearby",
             ],
             [
               22,
               "✈ Fly",
-              "F: paper plane · G: eagle",
+              "F: glider · G: eagle",
               "W climbs · S dives · A/D bank · SPACE flaps (eagle) · same key to land",
             ],
             [
@@ -11495,7 +11506,7 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
             [
               120,
               "🐋 Look up",
-              "Paper whales drift overhead",
+              "Sky whales drift overhead",
               "Also: rainbows, waterfalls, cable cars, hedge mazes, farms — and fireflies at night",
             ],
             [
@@ -11593,7 +11604,7 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
           canvas.toBlob((b) => {
             const a = document.createElement("a");
             a.href = URL.createObjectURL(b);
-            a.download = `foldline-${Date.now()}.png`;
+            a.download = `pawan-world-${Date.now()}.png`;
             a.click();
             setTimeout(() => URL.revokeObjectURL(a.href), 2000);
           });

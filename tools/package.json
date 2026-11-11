@@ -1,0 +1,20 @@
+{
+  "name": "pawan-world-tools",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Optional asset build scripts for Pawan World.",
+  "scripts": {
+    "build:wild": "node build-wild.mjs",
+    "build:hero": "node build-hero.mjs",
+    "build:trainer": "node build-trainer.mjs"
+  },
+  "devDependencies": {
+    "@gltf-transform/core": "^4.1.1",
+    "@gltf-transform/extensions": "^4.1.1",
+    "@gltf-transform/functions": "^4.1.1",
+    "draco3dgltf": "^1.5.7",
+    "meshoptimizer": "^0.18.1",
+    "sharp": "^0.33.5"
+  }
+}

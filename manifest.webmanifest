@@ -1,7 +1,7 @@
 {
   "name": "Pawan World",
   "short_name": "Pawan World",
-  "description": "Open-world ink & watercolour driving game. Paint the road. Then leave it.",
+  "description": "An open-world Pokémon fan game and interactive developer portfolio in a hand-painted watercolour world.",
   "start_url": "./",
   "scope": "./",
   "display": "fullscreen",

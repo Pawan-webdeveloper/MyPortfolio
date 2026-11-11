@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Node tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Check browser module syntax
+        run: |
+          for file in hero.js home/*.js nav/*.js ui/*.js wild/*.js; do
+            node --check "$file"
+          done
+
+      - name: Run gameplay tests
+        run: node --test

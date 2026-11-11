@@ -15,7 +15,7 @@ import { PARTY, bossStats, playerHit, bossHit, effectLabel, TYPE_COLORS, clamp }
 import { REGIONS, SINK } from "./roster.js";
 
 const TAU = Math.PI * 2;
-const BATTLE_SONG = "Clash of Paper";
+const BATTLE_SONG = "Clash of Colours";
 const damp = (a, b, l, dt) => a + (b - a) * (1 - Math.exp(-l * dt));
 const angDiff = (a, b) => Math.atan2(Math.sin(a - b), Math.cos(a - b));
 const mtof = (n) => 440 * Math.pow(2, (n - 69) / 12);
@@ -114,12 +114,12 @@ export function createBattle(ctx) {
     mid.position.y = 0.02;
     const ball = new THREE.Mesh(new THREE.CircleGeometry(7, 48).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ map: ballTex, transparent: true, depthWrite: false }));
     ball.position.y = 0.03;
-    // low paper wall with posts
+    // low wall with posts
     const wall = new THREE.Mesh(new THREE.CylinderGeometry(R + 2.5, R + 2.5, 1.6, 72, 1, true), ctx.toon("#fbf8ef", { side: THREE.DoubleSide }));
     wall.position.y = 0.8;
     wall.castShadow = wall.receiveShadow = true;
     world.add(outer, floor, edge, mid, ball, wall);
-    // stands + crowd (instanced paper cut-outs that cheer on big hits)
+    // stands + crowd (instanced cut-outs that cheer on big hits)
     const N = 150,
       body = new THREE.BoxGeometry(0.9, 1.7, 0.5);
     crowd = new THREE.InstancedMesh(body, ctx.toon("#ffffff"), N);

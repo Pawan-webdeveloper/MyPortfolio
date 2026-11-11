@@ -165,7 +165,7 @@ function makeRenderer(maxDpr) {
   return renderer;
 }
 
-// soft paper "battle pad" under the duo
+// soft battle pad under the duo
 function battlePad() {
   const cv = document.createElement("canvas");
   cv.width = 512;

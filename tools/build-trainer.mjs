@@ -5,14 +5,14 @@
 // the same 65-joint humanoid skeleton, so the hair is re-bound to the body's skin. Clothes, cap,
 // glasses and the t-shirt print are added at runtime by home/trainer.js.
 //
-// Run from the PaperWorld folder, pointing at the unzipped kit (folders body/ and hair/):
+// Run from the repository root, pointing at the unzipped kit (folders body/ and hair/):
 //   node tools/build-trainer.mjs /path/to/kit
-// Uses the glTF tooling already installed in ../my-game/node_modules.
+// Requires the optional build dependencies in tools/package.json (npm install --prefix tools).
 import { createRequire } from "node:module";
 import fs from "node:fs";
 import path from "node:path";
 
-const require = createRequire(new URL("../../my-game/package.json", import.meta.url));
+const require = createRequire(new URL("./package.json", import.meta.url));
 const { NodeIO } = require("@gltf-transform/core");
 const { ALL_EXTENSIONS } = require("@gltf-transform/extensions");
 const { mergeDocuments, prune, dedup, textureCompress, draco, unpartition } = require("@gltf-transform/functions");

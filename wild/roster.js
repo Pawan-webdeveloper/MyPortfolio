@@ -6,7 +6,7 @@
 //   land   ground species (the first one is also used for herds that replaced cows/deer/sheep)
 //   water  swimmers (lakes) – the first one also replaces the old duck families
 //   shore  waders that stay in the shallows / on the beach
-//   air    the region's flyer: "bird" species replace the paper-bird flocks, "hover" species
+//   air    the region's flyer: "bird" species replace the old bird flocks, "hover" species
 //          drift a few metres above the ground (bugs, ghosts, fairies)
 //
 // No species is used twice anywhere, so every region feels different.
@@ -44,7 +44,7 @@ export const REGIONS = {
   "Windmill Plains": { biome: "field", boss: 641, land: [749, 84, 231], air: 396 },
 
   // ── forests: bug, grass, poison & dark ───────────────────────────────
-  "Inkwood Forest": { biome: "forest", boss: 717, land: [570, 48, 285], air: 163 },
+  "Nightwood Forest": { biome: "forest", boss: 717, land: [570, 48, 285], air: 163 },
   "Cedar Hush": { biome: "forest", boss: 251, land: [585, 273, 252], air: 731 },
   "Pinecone Hollow": { biome: "forest", boss: 649, land: [216, 204, 161], air: 722 },
   "Moss Library": { biome: "forest", boss: 787, land: [1, 46, 590], air: 269 },
@@ -61,10 +61,10 @@ export const REGIONS = {
   "Hanami Lane": { biome: "grove", boss: 380, land: [325, 764, 238], air: 178 },
 
   // ── mountains: rock, ground, ice, steel & dragon ─────────────────────
-  "Paper Peaks": { biome: "mountain", boss: 646, land: [361, 220, 459], air: 225 },
-  "Folded Ridge": { biome: "mountain", boss: 383, land: [74, 95, 66], air: 227 },
-  "Crane Summit": { biome: "mountain", boss: 384, land: [246, 443, 744], air: 142 },
-  "Origami Pass": { biome: "mountain", boss: 487, land: [304, 111, 447], air: 714 },
+  "Silver Peaks": { biome: "mountain", boss: 646, land: [361, 220, 459], air: 225 },
+  "Switchback Ridge": { biome: "mountain", boss: 383, land: [74, 95, 66], air: 227 },
+  "Cloud Summit": { biome: "mountain", boss: 384, land: [246, 443, 744], air: 142 },
+  "Mist Pass": { biome: "mountain", boss: 487, land: [304, 111, 447], air: 714 },
 
   // ── lakes: water types only ──────────────────────────────────────────
   "Teal Lake": { biome: "lake", boss: 382, water: [54, 270, 60, 118], shore: [656], air: 278 },

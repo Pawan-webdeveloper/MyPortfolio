@@ -121,7 +121,7 @@ const MENU = [
 const home = document.createElement("div");
 home.id = "home";
 home.innerHTML = `
-  <div class="h-scrim"></div><div class="h-paper"></div>
+  <div class="h-scrim"></div><div class="h-grain"></div>
   <div class="h-wrap">
     <header class="h-top">
       <div class="h-brand">

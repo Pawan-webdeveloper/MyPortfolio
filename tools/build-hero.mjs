@@ -4,12 +4,12 @@
 // blended with smooth-min), meshed with surface nets, simplified and Draco-compressed. Materials,
 // eyes, glasses, the shirt print and the bead bracelet are added at runtime by hero.js.
 //
-// Run from the PaperWorld folder:  node tools/build-hero.mjs
-// Uses the glTF tooling already installed in ../my-game/node_modules.
+// Run from the repository root:  node tools/build-hero.mjs
+// Requires the optional build dependencies in tools/package.json (npm install --prefix tools).
 import { createRequire } from "node:module";
 import { mkdirSync } from "node:fs";
 
-const require = createRequire(new URL("../../my-game/package.json", import.meta.url));
+const require = createRequire(new URL("./package.json", import.meta.url));
 const { Document, NodeIO } = require("@gltf-transform/core");
 const { KHRDracoMeshCompression } = require("@gltf-transform/extensions");
 const { draco, simplify, weld } = require("@gltf-transform/functions");

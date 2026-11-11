@@ -11,8 +11,8 @@ body.home-on #intro {
 }
 
 #home {
-  --paper: #f4efe2;
-  --paper2: #fbf8ef;
+  --canvas: #f4efe2;
+  --canvas2: #fbf8ef;
   --ink: #1f1d2b;
   --ink2: #3b3848;
   --muted: #66626f;
@@ -88,7 +88,7 @@ body.home-on #intro {
       linear-gradient(180deg, rgba(244, 239, 226, 0.3), rgba(244, 239, 226, 0.15) 40%, rgba(244, 239, 226, 0.75) 60%, rgba(244, 239, 226, 0.92));
   }
 }
-#home .h-paper {
+#home .h-grain {
   position: absolute;
   inset: 0;
   pointer-events: none;
@@ -180,7 +180,7 @@ body.home-on #intro {
   height: 38px;
   border-radius: 50%;
   border: 3px solid var(--ink);
-  background: linear-gradient(var(--red) 0 46%, var(--ink) 46% 54%, var(--paper2) 54%);
+  background: linear-gradient(var(--red) 0 46%, var(--ink) 46% 54%, var(--canvas2) 54%);
   position: relative;
   box-shadow: 2px 2px 0 var(--ink);
 }
@@ -192,7 +192,7 @@ body.home-on #intro {
   width: 11px;
   height: 11px;
   border-radius: 50%;
-  background: var(--paper2);
+  background: var(--canvas2);
   border: 3px solid var(--ink);
   transform: translate(-50%, -50%);
 }
@@ -228,7 +228,7 @@ body.home-on #intro {
   padding: 10px 12px;
   min-height: 40px;
   border: 2.5px solid var(--ink);
-  background: var(--paper2);
+  background: var(--canvas2);
   border-radius: 8px;
   box-shadow: 2px 2px 0 var(--ink);
   display: inline-flex;
@@ -252,17 +252,17 @@ body.home-on #intro {
 
 /* ---------- Pokémon-style boxes ---------- */
 #home .pk-box {
-  background: var(--paper2);
+  background: var(--canvas2);
   border: 3px solid var(--ink);
   border-radius: 12px;
   box-shadow:
-    inset 0 0 0 3px var(--paper2),
+    inset 0 0 0 3px var(--canvas2),
     inset 0 0 0 5px rgba(31, 154, 138, 0.55),
     4px 4px 0 var(--ink);
 }
 #home .pk-box.red {
   box-shadow:
-    inset 0 0 0 3px var(--paper2),
+    inset 0 0 0 3px var(--canvas2),
     inset 0 0 0 5px rgba(214, 69, 47, 0.5),
     4px 4px 0 var(--ink);
 }
@@ -416,7 +416,7 @@ body.touch .h-keys {
   top: -14px;
   left: 18px;
   background: var(--ink);
-  color: var(--paper2);
+  color: var(--canvas2);
   font-family: var(--pixel);
   font-size: 8px;
   padding: 6px 9px 5px;
@@ -455,7 +455,7 @@ body.touch .h-keys {
   height: 64px;
   border-radius: 50%;
   border: 4px solid var(--ink);
-  background: linear-gradient(var(--red) 0 45%, var(--ink) 45% 55%, var(--paper2) 55%);
+  background: linear-gradient(var(--red) 0 45%, var(--ink) 45% 55%, var(--canvas2) 55%);
   position: relative;
   animation: h-wobble 1.1s ease-in-out infinite;
   box-shadow: 3px 3px 0 var(--ink);
@@ -468,7 +468,7 @@ body.touch .h-keys {
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: var(--paper2);
+  background: var(--canvas2);
   border: 4px solid var(--ink);
   transform: translate(-50%, -50%);
 }
@@ -477,7 +477,7 @@ body.touch .h-keys {
   height: 14px;
   border: 3px solid var(--ink);
   border-radius: 8px;
-  background: var(--paper2);
+  background: var(--canvas2);
   overflow: hidden;
 }
 #home .h-load .bar i {
@@ -491,7 +491,7 @@ body.touch .h-keys {
   font-family: var(--pixel);
   font-size: 10px;
   letter-spacing: 0.06em;
-  background: var(--paper2);
+  background: var(--canvas2);
   border: 2px solid var(--ink);
   border-radius: 6px;
   padding: 7px 10px 6px;
@@ -535,7 +535,7 @@ body.touch .h-keys {
   gap: 12px;
   padding: 14px 16px 12px 20px;
   border-bottom: 3px solid var(--ink);
-  background: var(--paper);
+  background: var(--canvas);
   border-radius: 9px 9px 0 0;
   flex: none;
 }
@@ -564,7 +564,7 @@ body.touch .h-keys {
   min-height: 44px;
   border: 2.5px solid var(--ink);
   border-radius: 22px;
-  background: var(--paper2);
+  background: var(--canvas2);
   box-shadow: 2px 2px 0 var(--ink);
   display: inline-flex;
   align-items: center;
@@ -576,7 +576,7 @@ body.touch .h-keys {
   height: 22px;
   border-radius: 50%;
   background: var(--ink);
-  color: var(--paper2);
+  color: var(--canvas2);
   display: grid;
   place-items: center;
   font-size: 9px;
@@ -671,7 +671,7 @@ body.touch .h-keys {
   height: 46px;
   border-radius: 50%;
   border: 3px solid var(--ink);
-  background: linear-gradient(var(--red) 0 45%, var(--ink) 45% 55%, var(--paper2) 55%);
+  background: linear-gradient(var(--red) 0 45%, var(--ink) 45% 55%, var(--canvas2) 55%);
   animation: h-wobble 1.1s ease-in-out infinite;
 }
 #home .slot .logo {
@@ -681,7 +681,7 @@ body.touch .h-keys {
   width: 50px;
   height: 50px;
   border-radius: 14px;
-  background: var(--paper2);
+  background: var(--canvas2);
   border: 3px solid var(--ink);
   box-shadow: 2px 2px 0 var(--ink);
   display: grid;
@@ -791,7 +791,7 @@ body.touch .h-keys {
 #home .pc-card {
   border: 2.5px solid var(--ink);
   border-radius: 10px;
-  background: var(--paper2);
+  background: var(--canvas2);
   padding: 12px 12px 10px;
   box-shadow: 2px 2px 0 var(--ink);
   display: grid;
@@ -911,7 +911,7 @@ body.touch .h-keys {
   min-height: 44px;
   border: 2.5px solid var(--ink);
   border-radius: 10px;
-  background: var(--paper2);
+  background: var(--canvas2);
   color: var(--ink) !important;
   box-shadow: 3px 3px 0 var(--ink);
   display: inline-flex;
@@ -963,7 +963,7 @@ body.touch .h-keys {
   white-space: nowrap;
   font-family: var(--pixel);
   font-size: 8px;
-  background: var(--paper2);
+  background: var(--canvas2);
   color: var(--ink);
   border: 2px solid var(--ink);
   border-radius: 6px;
@@ -1116,7 +1116,7 @@ body.touch .h-keys {
 #home .stat {
   border: 2px solid var(--ink);
   border-radius: 10px;
-  background: var(--paper);
+  background: var(--canvas);
   padding: 8px 10px;
   min-width: 0;
 }
@@ -1147,7 +1147,7 @@ body.touch .h-keys {
   gap: 10px;
   padding: 10px 14px;
   border-top: 3px solid var(--ink);
-  background: var(--paper);
+  background: var(--canvas);
   border-radius: 0 0 9px 9px;
 }
 #home .sum-foot .dots {
@@ -1159,7 +1159,7 @@ body.touch .h-keys {
   height: 12px;
   border-radius: 50%;
   border: 2px solid var(--ink);
-  background: var(--paper2);
+  background: var(--canvas2);
 }
 #home .sum-foot .dots i.on {
   background: var(--red);
@@ -1210,7 +1210,7 @@ body.touch .h-keys {
   letter-spacing: 0.06em;
 }
 #home .tcard-in {
-  background: var(--paper2);
+  background: var(--canvas2);
   border: 3px solid var(--ink);
   border-radius: 12px;
   display: grid;
@@ -1259,7 +1259,7 @@ body.touch .h-keys {
 }
 #home .badges {
   margin-top: 12px;
-  background: var(--paper2);
+  background: var(--canvas2);
   border: 3px solid var(--ink);
   border-radius: 12px;
   padding: 12px;
@@ -1339,7 +1339,7 @@ body.touch .h-keys {
   font-family: var(--pixel);
   font-size: 8px;
   background: var(--ink);
-  color: var(--paper2);
+  color: var(--canvas2);
   border-radius: 6px;
   padding: 5px 7px 4px;
 }
@@ -1392,7 +1392,7 @@ body.touch .h-keys {
 #home .town .lbl {
   font-family: var(--pixel);
   font-size: 7.5px;
-  background: var(--paper2);
+  background: var(--canvas2);
   border: 2px solid var(--ink);
   border-radius: 6px;
   padding: 5px 6px 4px;
@@ -1513,7 +1513,7 @@ body.touch .h-keys {
   align-items: center;
   gap: 10px;
   text-decoration: none;
-  background: var(--paper2);
+  background: var(--canvas2);
   border: 2.5px solid var(--ink);
   border-radius: 12px;
   padding: 10px 12px;
@@ -1812,7 +1812,7 @@ body.touch .h-keys {
   #home .h-scrim {
     position: fixed;
   }
-  #home .h-paper {
+  #home .h-grain {
     position: fixed;
   }
   #home .h-stage {
@@ -2126,12 +2126,12 @@ body.touch .h-keys {
   font-family: var(--pixel);
   font-size: 10px;
   letter-spacing: 0.06em;
-  background: var(--paper2);
+  background: var(--canvas2);
   border: 3px solid var(--ink);
   border-radius: 8px;
   padding: 10px 14px 9px;
   box-shadow:
-    inset 0 0 0 2px var(--paper2),
+    inset 0 0 0 2px var(--canvas2),
     inset 0 0 0 4px rgba(31, 154, 138, 0.5),
     2px 2px 0 var(--ink);
   transform: translateY(-160%);

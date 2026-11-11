@@ -2,3 +2,7 @@
 audio/
 tools/.cache/
 .claude/
+node_modules/
+tools/node_modules/
+.vercel/
+*.log

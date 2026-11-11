@@ -1,149 +1,287 @@
-# Pawan World
+<p align="center">
+  <img src="icons/icon-192.png" width="96" height="96" alt="Pawan World app icon" />
+</p>
 
-A Pokémon fan-game customization by **Pawan** for [MyPortfolio](https://github.com/Pawan-webdeveloper/MyPortfolio).
+<h1 align="center">Pawan World</h1>
 
-Explore an endless ink-and-watercolour world with three playable Pokémon:
+<p align="center">
+  <strong>An open-world Pokémon fan game — and an interactive developer portfolio.</strong><br />
+  Ride Charizard, drive Gengar's jeep and glide as Greninja through a hand-painted watercolour world.
+</p>
 
-- **Charizard:** fly through the world.
-- **Gengar:** drive a stylish jeep, park it, and get in or out.
-- **Greninja:** walk, run, jump, and glide smoothly from Charizard's airborne position. Ash-inspired details appear during the glide and landing, then return to normal.
+<p align="center">
+  <a href="https://pawan-portfolio-silk-mu.vercel.app/">
+    <img src="https://img.shields.io/badge/Play%20the%20game-Live%20on%20Vercel-2ea44f?style=for-the-badge" alt="Play Pawan World" />
+  </a>
+  <a href="https://github.com/Pawan-webdeveloper/MyPortfolio/stargazers">
+    <img src="https://img.shields.io/github/stars/Pawan-webdeveloper/MyPortfolio?style=for-the-badge&logo=github&label=Stars" alt="GitHub stars" />
+  </a>
+</p>
 
-The existing world, driving speed, vehicle interactions, camera, weather, radio, and screen layout are preserved.
+<p align="center">
+  <img src="https://img.shields.io/badge/three.js-r170-000000" alt="three.js r170" />
+  <img src="https://img.shields.io/badge/JavaScript-ES%20Modules-f7df1e?logo=javascript&logoColor=black" alt="JavaScript ES Modules" />
+  <img src="https://img.shields.io/badge/WebGL-3D-990000" alt="WebGL" />
+  <img src="https://img.shields.io/badge/PWA-installable-5a0fc8" alt="Installable PWA" />
+  <img src="https://img.shields.io/badge/Deployed%20on-Vercel-000000?logo=vercel&logoColor=white" alt="Deployed on Vercel" />
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="MIT License" /></a>
+  <a href="https://github.com/Pawan-webdeveloper/MyPortfolio/actions/workflows/ci.yml"><img src="https://github.com/Pawan-webdeveloper/MyPortfolio/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI status" /></a>
+</p>
 
-## Wild Pokémon
+<p align="center">
+  <a href="https://pawan-portfolio-silk-mu.vercel.app/">
+    <img src="docs/screenshots/home.jpg" alt="Pawan World start screen with the portfolio menu" width="100%" />
+  </a>
+</p>
 
-The world's animals are gone; every region now has its own wild Pokémon, picked by type for the place:
+<p align="center">
+  <a href="#about">About</a> ·
+  <a href="#features">Features</a> ·
+  <a href="#screenshots">Screenshots</a> ·
+  <a href="#controls">Controls</a> ·
+  <a href="#tech-stack">Tech stack</a> ·
+  <a href="#run-locally">Run locally</a> ·
+  <a href="#license">License</a>
+</p>
 
-- **32 regions, 164 species from generations 1–7, no repeats.** Towns get city Pokémon and pets (Meowth, Pikachu, Litwick…), fields get farm and grassland ones (Mareep, Miltank, Ponyta…), forests get Bug/Grass/Dark types, meadows and cherry groves get Fairy and Grass types, mountains get Rock/Ground/Ice/Steel, and lakes get Water types only. The full list is in `wild/roster.js`.
-- **One legendary boss per region, drawn from every generation 1–7:** Mewtwo in Café Lane, Mew in Teacup Quarter, Lugia off Salt Shore, Kyogre in Teal Lake, Palkia in Mirror Water, Rayquaza on Crane Summit, Giratina in Origami Pass, Groudon on Folded Ridge, Kyurem on Paper Peaks, Ho-Oh over Rainbow Fields, Darkrai in Marmalade Mews, Yveltal in Inkwood Forest, Xerneas on Ribbon Row, Solgaleo, Zekrom, Tapu Lele, Tapu Bulu and more. Each boss waits at a fixed lair (chosen a short drive from where you first enter, then remembered), marked by a gold ring and a star. A tracker chip at the top and a Poké Ball on the minimap point the way.
-- **Herds and flocks:** where the world used to paint cows, sheep, deer and ducks there are now herds of the region's Pokémon (Miltank, Ponyta, Deerling, Psyduck families on the lakes). The paper-bird flocks became flocks of the region's bird Pokémon (Pidgey, Wingull, Starly…).
-- **Solid and reactive:** the car and Greninja bump into them (small ones get knocked over, bosses don't budge), and Charizard can't fly through them. Timid ones run, curious ones come over to look, and on foot **E** greets the nearest one. First sightings fill a Pokédex (top of the screen, saved in `localStorage` as `pw-dex`).
-- **Light on performance:** `tools/build-wild.mjs` bakes each rigged model into a static mesh, simplifies it, shrinks textures to 256 px WebP (512 px for bosses) and Draco-compresses it (4.7 MB for all 164, about 28 KB each). In game each species is one instanced mesh per material, loaded only when its region is near and unloaded when unused. They really walk: the vertex shader swings bipeds' legs left/right and quadrupeds' legs in diagonal pairs about the hip (measured from each model; which species is which is listed in `wild/roster.js` → `LEGS`), lifting each foot on the forward swing. Step rate follows speed, so feet don't slide, and running means longer strides, a forward lean and more bounce. Birds and bugs beat their wings (`WINGS`), hoppers hop in time with their speed, and blob-shaped Pokémon shuffle. Feet sit exactly on the ground: models are grounded on their true lowest point and placed on the highest terrain under their footprint.
-- Rebuild models with `node tools/build-wild.mjs` (it checks every species' types against PokéAPI first). Check them by eye with `tools/wild-preview.html` (`?anim=walk|run&view=side` plays the walk cycle).
+---
 
-## Boss battles
+## About
 
-Walk up to a region's boss on foot and press **E** (on phones: GET IN/OUT) for a **Challenge** card. Accept and a VS loading screen takes you into an arena: **your Charizard, Gengar and Greninja against the boss**, until one side's health runs out.
+**Pawan World** is a browser-based, open-world Pokémon fan game that doubles as my developer portfolio. It is built with **three.js**, **vanilla JavaScript**, and **no build step** — open the page and play.
 
-- **Your team:** each Pokémon has four real moves (types, powers, cooldowns from the games) plus a short shared cooldown between moves:
-  - Charizard (Fire/Flying): Flamethrower, Air Slash, Dragon Claw, Fire Blast
-  - Gengar (Ghost/Poison): Shadow Ball, Sludge Bomb, Thunderbolt, Shadow Claw
-  - Greninja (Water/Dark): Water Shuriken, Night Slash, Hydro Pump, Dark Pulse
-- **The boss** uses its signature move (Mewtwo's Psystrike, Kyogre's Origin Pulse, Giratina's Shadow Force, Rayquaza's Dragon Ascent…) and three moves of its types. Every attack is **telegraphed in red on the ground** (arcs, rings, charge lanes, beam lines, falling circles) and its name appears under the boss's health bar. The boss's body glows in the move's colour while it charges.
-- **Hard mode is the only mode.** Three or four clean hits knock out one of your Pokémon, so you have to dodge. The boss holds the middle of the arena, circles you, **sidesteps attacks it sees coming** (it can't be hit mid-sidestep), keeps aiming until late in its windup, often follows a meteor attack with a second wave, and below half health it enrages: faster windups, more shots, attacks chained back to back. A fight lasts about 2–3 minutes. The opening is right after it attacks, while it recovers.
-- **Dodge:** roll with **Space** (DODGE on phones); you're invincible for the first part of the roll, so you can roll *through* attacks or just move out of the red zone. The roll has a short cooldown, so against chained attacks you also need to walk out.
-- **Resting:** Pokémon on the bench slowly recover HP, so switch before one faints.
-- **Types matter:** damage uses the real type chart with STAB and crits (immunities are softened to ×0.25 so every boss is beatable). Switch (**Q / Tab**, or tap a party card) to resist a boss's moves; a fainted Pokémon is swapped out automatically.
-- **Win and the boss leaves its lair for good** (saved in `localStorage` as `pw-bosses`), and the world map marks it ✓. Lose and your team is healed: try again or leave; the boss keeps waiting. **Esc twice** (or Run ✕) gets away.
-- **Attack effects** are built per element: flame jets that cool into smoke, water beams with spray, forked lightning, claw marks on the target's body, lobbed bombs that leave scorch marks, shockwave rings and dust.
-- Code: `wild/combat.js` (type chart, moves, damage; tested in `tests/combat.test.mjs`) and `wild/battle.js` (the arena scene, boss AI, dodging, effects, HUD; difficulty knobs are the `HARD` and `SHAPE` tables at the top, plus `BOSS_SCALE` and boss HP in `combat.js`). `index.html` renders the arena scene instead of the world while you fight.
+The world streams in as you travel: painted roads, patchwork fields, deep forests, lakes, cherry groves and mountain passes. Each of the **32 regions** has its own wild Pokémon roster and a legendary boss waiting in a lair. Back at the start menu, the same world becomes a portfolio: **PLAY**, **TEAM** (projects), **JOURNEY** (experience), **SKILLS**, **CONTACT**, and a plain **CLASSIC VIEW** for visitors in a hurry.
 
-## Settings
+It is a personal project, a Pokémon tribute, and a playground for WebGL, procedural generation, shader work and game-feel experiments.
 
-The **⚙ Settings** button (on the dash on desktop, among the touch buttons on phones) or **Esc** opens a guide: your Pokémon (abilities and battle moves; switch from there), graphics (quality, rain, time of day, minimap), every key binding (or the touch layout on phones) and game progress (Pokédex, bosses defeated, reset). Code: `ui/settings.js`.
+### At a glance
 
-## World map
+- **32 regions**, **164 wild Pokémon** from generations 1–7, and **32 legendary bosses** — one per region.
+- **Three playable Pokémon**, each with a different way to move: Charizard flies, Gengar drives, Greninja runs, glides and crosses deep water.
+- **Real Pokémon-style battles**: four moves per Pokémon, type effectiveness, STAB, crits, telegraphed attacks, dodging and hard-mode boss AI.
+- **100% client-side** — no backend, no account, no tracking.
+- **Installable PWA** with an offline cache and mobile touch controls.
+- **32 automated tests** covering the roster, battle math, world-map routing and the Greninja glide state machine.
 
-Press **M** (or click / tap the minimap) for a full-screen map. It shows where you are, the roads and regions, and **every region boss** in view (lairs are found on the fly; the list on the side is sorted by distance). Drag to move, scroll / pinch / +− to zoom, ◎ to re-centre.
+## Features
 
-- **Tap anywhere** to drop a pin, or **tap a boss → Navigate**. The shortest route is drawn on the map and the minimap, a chip at the top of the screen points the way with the distance left, and a light beacon marks the spot.
-- Routes prefer roads, avoid town blocks and slow forests, and never send the jeep into deep water. On foot (Greninja) water is fine, and Charizard flies straight. Wander off or switch Pokémon and the route is re-planned.
-- The code is in `nav/worldmap.js`; `index.html` only passes it the world helpers and calls `worldMap.update()` each frame.
+### A portfolio inside the game
 
-## Deep water
-
-Lakes outside towns are now deep (town ponds stay shallow, and the shorelines are where they always were). The sea is painted by depth: dark blue in the middle, light turquoise in the shallows.
-
-- **Gengar's jeep** (or any borrowed car) and **Charizard** sink if they go into deep water, then come back up at the last dry spot you passed, facing away from the water.
-- **Greninja** runs across deep water on the surface, splashing as it goes.
-
-## Portfolio home screen
-
-The page opens on Pawan's portfolio: a Pokémon-style start menu over the live (blurred) world, with Pawan in a trainer cap standing beside Greninja in a trainer-and-partner battle pose (Greninja carries its water shuriken).
+The start menu is the portfolio. Pick a section and the world reacts.
 
 | Menu | What it shows |
 | --- | --- |
-| **PLAY** | Starts the game through its own start button. Unlocks once the world has finished building. |
-| **TEAM** | Projects as a Pokémon party (ScanlyFix · Greninja, Bennet AI · Charizard, ThirdEye · Gengar). Picking one slides the Pokémon into the corner of a summary card: description, role, tech-stack "types", features as "moves", architecture, and links. A PC box lists smaller projects. |
-| **JOURNEY** | Trainer card (avatar, class, badges) and experience chapters. |
-| **SKILLS** | A top-down pixel-art region (`home/skillmap.js`, original tiles drawn in code) with five skill towns, each with its own landmark: Frontend Town, Backend City HQ, Database Cave, AI Tower and DevOps Harbor. Walk Pawan's sprite with arrows/WASD or the on-screen D-pad, or tap to walk. Press A/Enter at a sign to read that town's skills. PREV/NEXT TOWN walk him there automatically. |
-| **CONTACT** | Poké Gear with email, LinkedIn, GitHub and website, plus a message form that opens the visitor's mail app. |
-| **CLASSIC VIEW** | Everything on one plain page, for visitors in a hurry. |
+| **PLAY** | Starts the game and hands control to the 3D world. Unlocks once the world has finished building. |
+| **TEAM** | Projects as a Pokémon party — pick one to open a card with its description, role, tech-stack "types", features as "moves", architecture and links. A PC box lists smaller projects. |
+| **JOURNEY** | A trainer card and experience chapters. |
+| **SKILLS** | A top-down pixel-art region with five skill towns, walkable with arrows/WASD or tap-to-walk. |
+| **CONTACT** | A Poké Gear screen with email, LinkedIn, GitHub, website and a message form. |
+| **CLASSIC VIEW** | Everything on one plain page for visitors in a hurry. |
 
-Controls: arrows or WASD to move, Enter or Space to select, Esc, Backspace or B to go back. Touch and mouse work everywhere. Sections are linkable (`#team`, `#team/scanlyfix`, `#journey`, `#skills`, `#contact`, `#classic`), and the browser Back button closes them.
+The portfolio content lives in [`home/content.js`](home/content.js); the 3D duo and menu live in [`home/`](home/).
 
-- **Edit the text** in `home/content.js`. No UI code needs touching.
-- The home code lives in `home/` (`home.js` menu and sections, `stage.js` 3D duo and card portraits, `home.css` styles scoped under `#home`). `hero.js` builds Pawan's model; `buildHero({ cap: true })` adds the trainer cap.
-- The game script, styles and HUD markup in `index.html` are unchanged. While the home is open it holds the keyboard, so menu keys never reach the game. PLAY then calls the game's own `#go` button.
-- **The trainer** is built in `home/trainer.js` on a CC0 base body (see credits below), packed into `models/hero/trainer.glb` by `tools/build-trainer.mjs`. Everything that makes him Pawan is added at runtime:
-  - his skin tone, clean-shaven face and dark rectangular glasses
-  - thick wavy hair: a volume layer plus a few hundred wavy locks that wrap the head
-  - the printed t-shirt and straight-leg trousers, generated as cloth shells that follow the skeleton. The skin they cover is removed, so nothing clips through.
-  - modelled black sports shoes (sole, welt, upper, laces) on the foot bones
-  - his bead bracelet
-  - a two-bone IK pose: one arm thrust up and ahead, the other hand on his hip
-- If the trainer can't load, the older sculpted model in `hero.js` is used instead.
-- Dev aids: `tools/stage-preview.html` (the duo on its own), `tools/trainer-preview.html` and `tools/hero-preview.html`.
+### An endless watercolour world
 
-### Home-screen credits
+- Procedural terrain streams in chunks, so the world keeps going in every direction.
+- Hand-drawn outlines, watercolour shading, canvas grain and a torn frame give the game its painted look.
+- Painted roads double as sheet music: steer through floating notes to play each road's melody.
+- Day and night cycle, rain, a fully generative lo-fi radio, photo mode and a studio mode that hides the HUD.
 
-- Trainer base body and short scalp hair: [Universal Base Characters](https://quaternius.com/packs/universalbasecharacters.html) by Quaternius, Standard (free) version, **CC0 1.0** public domain. The hairstyle, clothing, shoes, glasses, bracelet, print and pose are original to this project.
+### Three ways to travel
+
+- **Charizard** — fly over anything, climb and dive, and land wherever you like.
+- **Gengar** — drive a jeep, park it, get out, and borrow any car, bus or tractor you find.
+- **Greninja** — run, jump, glide and cross deep water on the surface, with Ash-inspired details during the glide and landing.
+
+Press **E** to switch between riding and walking, and **Switch** to cycle Pokémon.
+
+### 164 wild Pokémon
+
+- Every region has its own roster: city Pokémon and pets in towns, farm animals in fields, Bug/Grass/Dark types in forests, Fairy/Grass types in meadows and groves, Rock/Ground/Ice/Steel in the mountains, and Water types in lakes.
+- Herds, flocks and solitary species react to you — timid Pokémon run, curious ones come closer, and **E** greets the nearest one on foot.
+- First sightings fill the Pokédex, saved in `localStorage`.
+- Models are baked, simplified, texture-compressed and Draco-compressed, then drawn with GPU instancing. Legs, wings and hops are animated in the vertex shader, so 164 species stay light on performance.
+
+### Legendary boss battles
+
+- Every region has one legendary boss with a fixed lair, a gold ring, a minimap marker and a tracker chip.
+- Walk up and press **E** to open a Challenge card, then fight with your three Pokémon against the boss.
+- Each Pokémon has four real moves with types, powers and cooldowns; the boss uses a signature move plus three moves of its types.
+- Every attack is telegraphed in red on the ground. Roll with **Space** to dodge through attacks, switch party members with **Q / Tab**, and use the type chart to resist the boss's moves.
+- Bosses sidestep attacks they see coming, chain attacks, and enrage below half health. Win and the boss leaves for good; lose and your team is healed for another try.
+
+### World map and navigation
+
+Press **M** or tap the minimap for a full-screen map. Drop a pin, pick a boss and hit **Navigate**; the shortest route is drawn on the map and minimap, a chip points the way, and a beacon marks the spot. Routes prefer roads, avoid town blocks and forests, and keep the jeep out of deep water. Greninja can cross water; Charizard flies straight.
+
+### Settings, mobile and offline
+
+- **Settings** covers graphics quality, rain, time of day, minimap, key bindings and progress (Pokédex, bosses defeated, reset).
+- Phones play in landscape with a joystick, six touch buttons and tap-to-walk menus.
+- The web manifest makes the game installable; the service worker caches the page, models, decoder and home-screen code for offline play after the first load.
+
+## Screenshots
+
+| Start menu | Open world |
+| --- | --- |
+| ![Pawan World start menu](docs/screenshots/home.jpg) | ![Exploring the open world](docs/screenshots/world.jpg) |
+
+| World map | Settings and guide |
+| --- | --- |
+| ![World map and boss navigation](docs/screenshots/map.jpg) | ![Settings and controls](docs/screenshots/settings.jpg) |
+
+<p align="center">
+  <img src="docs/screenshots/team.jpg" alt="Projects displayed as a Pokémon party" width="100%" />
+  <br />
+  <em>TEAM — projects as a Pokémon party, with a PC box for smaller projects.</em>
+</p>
 
 ## Controls
 
 | Key | Action |
 | --- | --- |
-| 1 | Select Charizard |
-| 2 | Select Gengar's jeep |
-| 3 | Select Greninja |
-| F | Cycle time of day |
-| 0 | Automatic time of day |
+| 1 / 2 / 3 | Charizard / Gengar's jeep / Greninja |
 | W / S | Throttle / brake, or walk forward / back |
 | A / D | Steer |
 | Space | Hop / jump |
 | Shift | Boost / run |
 | E | Get in / out of a vehicle · on foot: greet a Pokémon, challenge a boss |
-| Esc | Settings & guide |
+| F / G | Glider / eagle flight (press again to land) |
+| Esc | Settings and guide |
 | C | Cycle camera |
 | Scroll, + / − | Zoom |
 | [ / ] | Adjust field of view |
 | K | Toggle rain |
 | R / N / B | Radio on/off / next song / band |
-| M | World map (or click / tap the minimap) · M, Esc or Back closes it |
+| M | World map (or click / tap the minimap) |
 | P | Photo |
 | H | Hide UI |
 | Drag | Look around |
 
-The on-screen **Switch** button cycles Pokémon; **⚙ Settings** opens the settings & guide. Boss-battle controls: WASD move, Space dodge, 1–4 moves, Q/Tab switch, Esc ×2 run.
+**Boss battles:** WASD to move, **Space** to dodge, **1–4** for moves, **Q / Tab** to switch Pokémon, **Esc** twice to run.
+
+**Touch:** landscape orientation; the joystick and six on-screen buttons provide camera, Switch, settings, get in/out, boost and hop controls.
+
+## Tech stack
+
+| Layer | Technology |
+| --- | --- |
+| Rendering | **three.js r170** via import map, custom GLSL for outlines, watercolour shading, canvas grain and the vignette |
+| Language | **Vanilla JavaScript** ES modules, HTML5, CSS3 — no framework, no bundler |
+| World | Seeded procedural terrain, chunk streaming, painted roads, instanced props |
+| Pokémon | glTF/GLB models, Draco compression, GPU instancing, vertex-shader locomotion |
+| Audio | **Web Audio API** — generative radio, engine, weather and battle SFX |
+| Offline | Service Worker + Web App Manifest |
+| Tests | Node.js **`node:test`** |
+| Hosting | **Vercel** static deployment from `main` |
+
+## Project structure
+
+```text
+.
+├── index.html              # game shell, renderer, world, audio and UI
+├── hero.js                 # home-screen trainer model
+├── home/                   # portfolio menu, sections, 3D stage and content
+├── wild/                   # wild Pokémon, Pokédex, battle math and boss arena
+├── nav/                    # world map and route planner
+├── ui/                     # settings and guide panel
+├── models/                 # optimized glTF/GLB Pokémon and trainer models
+├── icons/                  # PWA icons
+├── tests/                  # node:test regression suites
+├── tools/                  # optional asset pipeline and preview pages
+├── vendor/                 # Draco decoder
+├── docs/screenshots/       # README images
+├── manifest.webmanifest    # PWA manifest
+├── sw.js                   # service worker
+├── LICENSE                 # MIT license for the source code
+├── NOTICE.md               # third-party asset and library notices
+└── package.json            # test script and project metadata
+```
 
 ## Run locally
 
-No build step. Serve this folder with a static server:
+There is no build step and nothing to install just to play.
 
 ```bash
-python3 -m http.server 8431
+git clone https://github.com/Pawan-webdeveloper/MyPortfolio.git
+cd MyPortfolio
+python3 -m http.server 8437
 ```
 
-Open http://localhost:8431.
+Open <http://localhost:8437>. On phones, use landscape orientation.
 
-On phones, use landscape orientation. The existing joystick and six touch buttons provide camera, Switch, Ninja, get in/out, boost, and hop controls. The web manifest supports installing the game on a home screen. Offline caching covers resources already fetched; visit and load each character online before relying on cached assets.
+### Optional: rebuild the Pokémon models
+
+The asset pipeline is only needed if you change the wild roster. It requires the
+dev dependencies in [`tools/package.json`](tools/package.json):
+
+```bash
+npm install --prefix tools
+node tools/build-wild.mjs
+```
+
+Preview pages live in `tools/` (`wild-preview.html`, `stage-preview.html`,
+`hero-preview.html`, `trainer-preview.html`).
 
 ## Tests
-
-Requires Node.js. Run the included gameplay regression tests:
 
 ```bash
 node --test
 ```
 
-## Third-party source and rights
+The suite covers:
 
-Pawan's work is the Pokémon customization, not authorship of all underlying code or assets.
+- every region having a roster in the right biome;
+- unique bosses and species across all 32 regions;
+- habitat types checked against PokéAPI data;
+- generations 1–7 only, with bosses spread across all generations;
+- boss-battle type math and move data;
+- world-map routing around deep water;
+- Greninja's glide and landing state machine;
+- deep-water behaviour for the jeep, Charizard and Greninja.
 
-- Pokémon names, characters, and model IP belong to Nintendo / Creatures Inc. / GAME FREAK inc. This is an unofficial, non-commercial fan project, not affiliated with or endorsed by those companies.
-- Model source: `Pokemon-3D-api/assets`, paths `models/opt/regular/6.glb`, `94.glb`, and `658.glb`, plus the 164 wild Pokémon in `models/pokemon/wild/` (same repository, `models/opt/regular/<dex number>.glb`, re-processed by `tools/build-wild.mjs`).
-- Species names, types and heights come from [PokéAPI](https://pokeapi.co/). Greninja's local asset retains selected animation clips from the original model. A repository's code license does not license the Pokémon model IP.
-- three.js is loaded from a CDN and is MIT-licensed.
-- The bundled Draco decoder is provided by Google under Apache-2.0. Its license is included in `vendor/draco/LICENSE`.
+CI runs the same tests plus a syntax check of every browser module on each push
+and pull request.
 
-These source and legal notices are intentionally retained. No blanket ownership or license claim is made for third-party material.
+## Deployment
+
+The game is deployed on **Vercel**:
+
+**https://pawan-portfolio-silk-mu.vercel.app/**
+
+Vercel builds and deploys the `main` branch. Because the project is static,
+there is no server, database or environment variable to configure.
+
+## Contributing
+
+Issues and pull requests are welcome. Read [`CONTRIBUTING.md`](CONTRIBUTING.md)
+for the local setup, the test command and the asset rules. Please keep the
+project client-side and do not add copyrighted Pokémon assets.
+
+## License
+
+The source code in this repository is released under the [MIT License](LICENSE).
+
+**Pawan World is an unofficial, non-commercial Pokémon fan project.** Pokémon
+names, characters, artwork and 3D models are the property of Nintendo /
+Creatures Inc. / GAME FREAK inc. and are **not** covered by the MIT license.
+The project is not affiliated with or endorsed by those companies.
+
+Third-party asset and library credits — including the Pokémon model source,
+PokéAPI, three.js, Draco, Google Fonts and the CC0 trainer base body — are
+listed in [`NOTICE.md`](NOTICE.md).
+
+## Author
+
+**Pawan Sah** — Full-stack developer based in Faridabad, India.
+
+- GitHub: [@Pawan-webdeveloper](https://github.com/Pawan-webdeveloper)
+- LinkedIn: [pawan-sah](https://www.linkedin.com/in/pawan-sah-661a86327/)
+- Live game and portfolio: [pawan-portfolio-silk-mu.vercel.app](https://pawan-portfolio-silk-mu.vercel.app/)
+- Email: [pawan572893@gmail.com](mailto:pawan572893@gmail.com)
+
+If you enjoy the project, a star on the repository is appreciated.
+
+---
+
+**Topics:** `#pokemon` `#threejs` `#webgl` `#gamedev` `#indiegame` `#javascript` `#html5` `#pwa` `#portfolio` `#creativecoding` `#fanmade` `#opensource`
