@@ -83,6 +83,7 @@ The portfolio content lives in [`home/content.js`](home/content.js); the 3D duo 
 ### An endless watercolour world
 
 - Procedural terrain streams in chunks, so the world keeps going in every direction.
+- Polyfork low-poly oaks, cherry trees, boulders, benches, parasols and hay bales dress the roadsides and parks. They are drawn through shared instanced detail batches, so the extra richness adds no draw calls; Low quality skips them completely.
 - Hand-drawn outlines, watercolour shading, canvas grain and a torn frame give the game its painted look.
 - Painted roads double as sheet music: steer through floating notes to play each road's melody.
 - Day and night cycle, rain, a fully generative lo-fi radio, photo mode and a studio mode that hides the HUD.
@@ -279,8 +280,8 @@ Creatures Inc. / GAME FREAK inc. and are **not** covered by the MIT license.
 The project is not affiliated with or endorsed by those companies.
 
 Third-party asset and library credits — including the Pokémon model source,
-PokéAPI, three.js, Draco, Google Fonts and the CC0 trainer base body — are
-listed in [`NOTICE.md`](NOTICE.md).
+PokéAPI, three.js, Draco, Google Fonts, the CC0 trainer base body and the
+CC BY 4.0 Polyfork props — are listed in [`NOTICE.md`](NOTICE.md).
 
 ## Author
 

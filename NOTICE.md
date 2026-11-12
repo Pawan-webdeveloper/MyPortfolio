@@ -24,6 +24,18 @@ No ownership claim is made over any Pokémon material.
   by Quaternius, Standard (free) version, released under **CC0 1.0**. Hair,
   clothing, shoes, glasses, bracelet, print, and pose are original to this
   project.
+- **Roadside and park props:** free low-poly meshes from [Polyfork](https://polyfork.dev),
+  released under **CC BY 4.0**. The unmodified GLB files are re-hosted for
+  offline play in `models/props/`; scaling, tinting, merging and toon shading
+  happen at runtime. Required credit lines:
+  - Broadleaf Oak by Polyfork (https://polyfork.dev/asset/broadleaf-oak-997c22), CC BY 4.0
+  - Tall Pine Tree by Polyfork (https://polyfork.dev/asset/tall-pine-tree-ab4108), CC BY 4.0
+  - Cherry Blossom Tree by Polyfork (https://polyfork.dev/asset/cherry-blossom-tree-3f7ab7), CC BY 4.0
+  - Large Boulder by Polyfork (https://polyfork.dev/asset/large-boulder-a29b99), CC BY 4.0
+  - Medium Rock by Polyfork (https://polyfork.dev/asset/medium-rock-e08405), CC BY 4.0
+  - Wooden Bench by Polyfork (https://polyfork.dev/asset/wooden-bench-02e2c8), CC BY 4.0
+  - Cafe Parasol by Polyfork (https://polyfork.dev/asset/cafe-parasol-61a313), CC BY 4.0
+  - Hay Bale by Polyfork (https://polyfork.dev/asset/hay-bale-079e8c), CC BY 4.0
 
 ## Species data
 
