@@ -1893,6 +1893,87 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
               console.warn("[props] detailed props disabled:", e);
               return null;
             });
+
+      /* ---- detailed cars: Polyfork CC BY 4.0 meshes, one instanced body per type ---- */
+      const CAR_SPECS = {
+        hatch: { file: "compact-hatchback-386417", len: 4.2, tints: ["#ffffff", "#ffe9c2", "#f7d9a8", "#e8f0d8", "#ffdfd0"] },
+        taxi: { file: "city-taxi-eefa91", len: 4.2, tints: ["#ffffff"] },
+        mini: { file: "kei-van-211ed5", len: 3.4 },
+        van: { file: "family-minivan-924de0", len: 5, tints: ["#ffffff", "#ffe6c8", "#f0d8c0", "#e0e8f0", "#ffd8c8"] },
+        pickup: { file: "suburban-pickup-truck-d15ea2", len: 5, tints: ["#ffffff", "#c8e4ff", "#a8d4e8", "#d8e8f0", "#b8cce8"] },
+        bus: { file: "city-bus-49fd97", len: 9 },
+        truck: { file: "delivery-truck-a9537e", len: 9 },
+      };
+      let CARS = null;
+      async function loadCarModel(spec) {
+        const gltf = await gltfLoader.loadAsync(`models/cars/${spec.file}.glb`);
+        const root = gltf.scene;
+        root.rotation.y = Math.PI; // Polyfork cars face +Z, the game's vehicles face -Z
+        root.updateMatrixWorld(true);
+        const box = new THREE.Box3().setFromObject(root);
+        const size = box.getSize(new THREE.Vector3());
+        const scale = spec.len / Math.max(0.01, size.z);
+        root.scale.setScalar(scale);
+        root.updateMatrixWorld(true);
+        box.setFromObject(root);
+        root.position.set(
+          -(box.min.x + box.max.x) / 2,
+          -box.min.y,
+          -(box.min.z + box.max.z) / 2,
+        );
+        root.updateMatrixWorld(true);
+        const mat = toon(0xffffff, { vertexColors: true });
+        const meshes = [];
+        root.traverse((o) => {
+          if (!o.isMesh) return;
+          meshes.push(o);
+          if (!o.geometry.attributes.color) {
+            const n = o.geometry.attributes.position.count;
+            o.geometry.setAttribute(
+              "color",
+              new THREE.BufferAttribute(new Float32Array(n * 3).fill(1), 3),
+            );
+          }
+          o.material = mat;
+          o.castShadow = true;
+          o.receiveShadow = true;
+        });
+        const parts = [];
+        for (const m of meshes) {
+          let g = m.geometry.index ? m.geometry.toNonIndexed() : m.geometry.clone();
+          g.applyMatrix4(m.matrixWorld);
+          for (const name of Object.keys(g.attributes))
+            if (name !== "position" && name !== "normal" && name !== "color")
+              g.deleteAttribute(name);
+          if (!g.attributes.normal) g.computeVertexNormals();
+          parts.push(g);
+        }
+        let geo = parts.length === 1 ? parts[0] : mergeGeometries(parts, false);
+        if (!geo) throw new Error(`${spec.file}: incompatible primitives`);
+        geo = addONormal(geo);
+        geo.computeBoundingSphere();
+        let wheelR = 0.5;
+        const wn = root.getObjectByName("wheel-fl") || root.getObjectByName("wheel-fr");
+        if (wn) {
+          const wb = new THREE.Box3().setFromObject(wn);
+          wheelR = Math.max(0.05, (wb.max.y - wb.min.y) / 2);
+        }
+        return { file: spec.file, tints: spec.tints, geo, raw: root, wheelR };
+      }
+      const carLoadP =
+        Q_.detail < 0.85
+          ? Promise.resolve(null)
+          : Promise.all(
+              Object.entries(CAR_SPECS).map(async ([kind, spec]) => [
+                kind,
+                await loadCarModel(spec),
+              ]),
+            )
+              .then((entries) => Object.fromEntries(entries))
+              .catch((e) => {
+                console.warn("[cars] detailed cars disabled:", e);
+                return null;
+              });
       const _m = new THREE.Matrix4(),
         _q = new THREE.Quaternion(),
         _q2 = new THREE.Quaternion(),
@@ -6626,6 +6707,7 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
       }
       const [charizardM, gengarM, greninjaM, gengarFootM] = await pokemonP;
       DETAIL = await detailLoadP;
+      CARS = await carLoadP;
       const steeringWheel = new THREE.Group();
       {
         const bx = (a, b, c) => new THREE.BoxGeometry(a, b, c),
@@ -8089,6 +8171,7 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
       };
       Object.values(CGEO).forEach(addONormal);
       const crowdMat = toon(0xffffff),
+        glbCarMat = toon(0xffffff, { vertexColors: true }),
         outlineThin = outlineMat.clone();
       outlineThin.uniforms = {
         ...outlineMat.uniforms,
@@ -8148,8 +8231,25 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
         constructor(specs, counts, thin) {
           this.groups = [];
           for (const [type, n] of counts) {
-            const sp = specs[type],
-              parts = sp.parts.map(normPart);
+            const sp = specs[type];
+            if (sp.glb) {
+              const im = new THREE.InstancedMesh(sp.glb.geo, glbCarMat, n);
+              im.frustumCulled = false;
+              im.castShadow = true;
+              im.receiveShadow = true;
+              for (let j = 0; j < n; j++) im.setMatrixAt(j, ZERO);
+              scene.add(im);
+              const om = new THREE.InstancedMesh(sp.glb.geo, outlineMat, n);
+              om.instanceMatrix = im.instanceMatrix;
+              om.frustumCulled = false;
+              scene.add(om);
+              const agents = [];
+              for (let j = 0; j < n; j++)
+                agents.push({ type, idx: j, sp, gi: this.groups.length });
+              this.groups.push({ type, sp, glb: sp.glb, ims: [im], body: im, agents });
+              continue;
+            }
+            const parts = sp.parts.map(normPart);
             const ims = parts.map((pt) => {
               const im = new THREE.InstancedMesh(CGEO[pt.g], crowdMat, n);
               im.frustumCulled = false;
@@ -8178,6 +8278,11 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
         }
         paint(a) {
           const g = this.groups[a.gi];
+          if (g.glb) {
+            g.body.setColorAt(a.idx, _cc.set(a.col));
+            g.body.instanceColor.needsUpdate = true;
+            return;
+          }
           g.parts.forEach((pt, k) => {
             g.ims[k].setColorAt(a.idx, _cc.set(colorOf(pt.c, a)));
             g.ims[k].instanceColor.needsUpdate = true;
@@ -8185,6 +8290,10 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
         }
         write(a, M, swing = 0) {
           const g = this.groups[a.gi];
+          if (g.glb) {
+            g.body.setMatrixAt(a.idx, a.hidden ? ZERO : M);
+            return;
+          }
           for (let k = 0; k < g.parts.length; k++) {
             const pt = g.parts[k];
             if (a.hidden) g.ims[k].setMatrixAt(a.idx, ZERO);
@@ -8242,6 +8351,43 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
         const g = new THREE.Group(),
           body = new THREE.Group();
         g.add(body);
+        if (sp.glb) {
+          const mat = toon(0xffffff, { vertexColors: true });
+          mat.color.set(cols.col || "#ffffff");
+          const model = sp.glb.raw.clone(true),
+            meshes = [];
+          model.traverse((o) => {
+            if (o.isMesh) meshes.push(o);
+          });
+          for (const m of meshes) {
+            m.material = mat;
+            m.castShadow = true;
+            m.receiveShadow = true;
+            outlined(m, 0.06);
+          }
+          const wheels = [];
+          for (const name of ["wheel-fl", "wheel-fr", "wheel-rl", "wheel-rr"]) {
+            const w = model.getObjectByName(name);
+            if (w) {
+              w.userData.spin = -1; // the model is turned to face -Z
+              wheels.push(w);
+            }
+          }
+          body.add(model);
+          g.userData = {
+            body,
+            wheels,
+            wheelR: sp.glb.wheelR,
+            fw: [],
+            limbs: [],
+            horn: null,
+            kind,
+            speed: sp.speed || 1,
+            len: sp.len || 4.2,
+          };
+          addGhost(g);
+          return g;
+        }
         const wheels = [],
           limbs = [];
         for (const a of sp.parts) {
@@ -8468,6 +8614,7 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
           ],
         },
       };
+      if (CARS) for (const type in CARS) if (VSPEC[type]) VSPEC[type].glb = CARS[type];
       const VCOUNTS = [
         ["hatch", 170],
         ["taxi", 60],
@@ -8524,7 +8671,11 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
         a.cur = a.base;
         a.stop = 0;
         a.hidden = false;
-        a.col = a.sp.cols ? rpick(a.sp.cols) : rpick(VEH_COLS);
+        a.col = a.sp.glb?.tints
+          ? rpick(a.sp.glb.tints)
+          : a.sp.cols
+            ? rpick(a.sp.cols)
+            : rpick(VEH_COLS);
         traffic.paint(a);
         a.lane = laneKey(a);
         if (!lanes.has(a.lane)) lanes.set(a.lane, []);
@@ -9009,6 +9160,7 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
         const u = g.userData;
         car.body = u.body || g;
         car.wheels = u.wheels || [];
+        car.wheelR = u.wheelR || 0.66;
         car.fw = u.fw || [];
         car.horn = u.horn || null;
         headL.visible = u.kind !== "human";
@@ -11228,7 +11380,10 @@ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.03+ve
           Math.sin(game.t * 14) *
           (surf === "road" ? 0.025 : 0.06) *
           Math.min(1, Math.abs(car.v) / 10);
-        for (const w of car.wheels) w.rotation.x -= (car.v * dt) / 0.66;
+        const wheelR = Math.max(0.05, car.wheelR || 0.66);
+        for (const w of car.wheels)
+          w.rotation.x -=
+            ((car.v * dt) / wheelR) * (w.userData.spin === -1 ? -1 : 1);
         for (const f of car.fw) f.rotation.y = car.steer * 0.45;
         const beat = A.ctx && A.on ? Math.pow(1 - (A.step % 4) / 4, 3) : 0;
         if (car.horn) car.horn.scale.setScalar(1 + beat * 0.12);

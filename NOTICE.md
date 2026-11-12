@@ -36,6 +36,17 @@ No ownership claim is made over any Pokémon material.
   - Wooden Bench by Polyfork (https://polyfork.dev/asset/wooden-bench-02e2c8), CC BY 4.0
   - Cafe Parasol by Polyfork (https://polyfork.dev/asset/cafe-parasol-61a313), CC BY 4.0
   - Hay Bale by Polyfork (https://polyfork.dev/asset/hay-bale-079e8c), CC BY 4.0
+- **Cars:** free low-poly meshes from [Polyfork](https://polyfork.dev), also
+  **CC BY 4.0**. The unmodified GLB files are re-hosted in `models/cars/` and
+  drawn with instancing, toon shading and runtime tinting. Required credit
+  lines:
+  - Compact Hatchback by Polyfork (https://polyfork.dev/asset/compact-hatchback-386417), CC BY 4.0
+  - City Taxi by Polyfork (https://polyfork.dev/asset/city-taxi-eefa91), CC BY 4.0
+  - Kei Van by Polyfork (https://polyfork.dev/asset/kei-van-211ed5), CC BY 4.0
+  - Family Minivan by Polyfork (https://polyfork.dev/asset/family-minivan-924de0), CC BY 4.0
+  - Suburban Pickup Truck by Polyfork (https://polyfork.dev/asset/suburban-pickup-truck-d15ea2), CC BY 4.0
+  - City Bus by Polyfork (https://polyfork.dev/asset/city-bus-49fd97), CC BY 4.0
+  - Delivery Truck by Polyfork (https://polyfork.dev/asset/delivery-truck-a9537e), CC BY 4.0
 
 ## Species data
 

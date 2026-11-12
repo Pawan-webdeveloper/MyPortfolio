@@ -84,6 +84,7 @@ The portfolio content lives in [`home/content.js`](home/content.js); the 3D duo 
 
 - Procedural terrain streams in chunks, so the world keeps going in every direction.
 - Polyfork low-poly oaks, cherry trees, boulders, benches, parasols and hay bales dress the roadsides and parks. They are drawn through shared instanced detail batches, so the extra richness adds no draw calls; Low quality skips them completely.
+- At High and Ultra, Polyfork hatchbacks, taxis, kei vans, minivans, pickups, buses and box trucks replace the procedural traffic fleet, and the wheels spin when you borrow one. Medium and Low keep the lighter procedural cars so phones stay fast.
 - Hand-drawn outlines, watercolour shading, canvas grain and a torn frame give the game its painted look.
 - Painted roads double as sheet music: steer through floating notes to play each road's melody.
 - Day and night cycle, rain, a fully generative lo-fi radio, photo mode and a studio mode that hides the HUD.
@@ -281,7 +282,7 @@ The project is not affiliated with or endorsed by those companies.
 
 Third-party asset and library credits — including the Pokémon model source,
 PokéAPI, three.js, Draco, Google Fonts, the CC0 trainer base body and the
-CC BY 4.0 Polyfork props — are listed in [`NOTICE.md`](NOTICE.md).
+CC BY 4.0 Polyfork props and cars — are listed in [`NOTICE.md`](NOTICE.md).
 
 ## Author
 
